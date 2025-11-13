@@ -1,4 +1,4 @@
-# time-series-air-quality
+# Robot control Project
 Project of the course of [Robot Controls Application](https://www.icorsi.ch/course/view.php?id=21192).
 
 ## Teams members
