@@ -9,6 +9,9 @@ from classes.robot import Robot_arm
 
 
 def damped_pseudoinverse(J: np.ndarray):
+    """
+    calculate the damped pseudoinverse of the jacobian matrix
+    """
     m, _ = J.shape
     return J.T @ np.linalg.inv(J@J.T + 0.01 * np.eye(m))
     
@@ -39,7 +42,9 @@ class Controller:
     
 
     def compute_qdot(self, robot: rtb.ERobot, target):
-        
+        """
+        compute the position of the joints
+        """
         T = robot.fkine(robot.q)
         error = target.t - T.t
         J = robot.jacob0(robot.q)[0:3,:]
@@ -49,6 +54,9 @@ class Controller:
         return qdot, error
         
     def drag_brick(self, brick, robot:rtb.ERobot):
+        """
+        the robot drag the brick as the arm move
+        """
         pos = robot.fkine(robot.q)
         brick.update_position(pos)
 

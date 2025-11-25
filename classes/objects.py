@@ -39,9 +39,15 @@ class Brick:
         self.height = self.scale[2]
     
     def update_position(self, pos):
+        """
+        match the position of the brick to the one of the end-factor
+        """
         self.obj.T = pos
 
     def placing_orientation(self):
+        """
+        modify the orientation of the brick to make it parallel to the plane
+        """
         I_R = np.eye(3)
         new_T = self.obj.T.copy()
         new_T[:3, :3] = I_R
