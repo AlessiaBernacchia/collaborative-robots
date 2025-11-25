@@ -107,6 +107,24 @@ class Controller:
 
 
     # Robot's movements
+    def compute_qdot(self, robot: rtb.ERobot, target: sm.SE3):
+        """
+        compute the position of the joints
+        """
+        T = robot.fkine(robot.q)
+        error = target.t - T.t
+        J = robot.jacob0(robot.q)[0:3,:]
+        J_inv = damped_pseudoinverse(J)
+        qdot = self.gain*J_inv@error
+        
+        return qdot, error
+        
+    def drag_brick(self, brick, robot:rtb.ERobot):
+        """
+        the robot drag the brick as the arm move
+        """
+        pos = robot.fkine(robot.q)
+        brick.update_position(pos)
     
     def move_to_pose(self, agent: Robot_arm, target_pose: sm.SE3, brick: Brick = None, dt: float = 0.01, tol: float = 0.001):
         """
