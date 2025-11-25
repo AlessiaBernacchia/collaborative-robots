@@ -1,7 +1,7 @@
 import swift
 import spatialmath as sm
 import spatialgeometry as sg
-#from classes.sensor import Sensor
+from classes.sensor import Sensor
 #from classes.objects import Tower, FictionalBrick
 import numpy as np
 import roboticstoolbox as rtb
@@ -71,32 +71,37 @@ class Controller:
         ask to the Sensor class a Brick free to pick
         """
         # TODO by Sensor developer
-        return FREE_BRICKS
+        return sensor.get_free_bricks()
     
     def ask_towers(self, sensor):
         """
         ask to the Sensor class the towers
         """
         # TODO by Sensor developer
-        return TOWERS
+        return sensor.get_towers()
 
     def search_uncomplete_tower(self, sensor):
         """
         search between the towers in the environment one that is incomplete
         """
-        for t in self.ask_towers(sensor):
-            if not t.is_complete():
-                return t
-        return None
+        #for t in self.ask_towers(sensor):
+        #    if not t.is_complete():
+        #        return t
+        #return None
+        towers = sensor.get_incomplete_towers()
+        return towers[0] if towers else None
+
     
     def free_brick(self, sensor):
         """
         return a brick free
         """
-        free_bricks = self.ask_free_bricks(sensor)
-        if len(free_bricks) > 0:
-            return free_bricks.pop(0)
-        return None
+        # free_bricks = self.ask_free_bricks(sensor)
+        # if len(free_bricks) > 0:
+        #   return free_bricks.pop(0)
+        # return None
+        free_bricks = sensor.get_free_bricks()
+        return free_bricks[0] if free_bricks else None
     
     def select_brick_and_tower(self, sensor: 'Sensor'):
         """
@@ -171,6 +176,9 @@ class Controller:
 
         # increasing the counter of the bricks on the tower
         target_tower.add(brick_placed=brick_to_pick)
+
+        #flag the brick as placed
+        brick_to_pick.placed = True
 
 
 

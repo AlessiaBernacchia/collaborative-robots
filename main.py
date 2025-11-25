@@ -13,17 +13,30 @@ if __name__ == "__main__":
     panda_agent = Robot_arm("panda")
     panda_agent.set_position(-0.5, 0.0, 0.0)
     panda_agent.register(env)
+
+    # initialize bricks
+    brick_A = Brick(sm.SE3(0.0, 0.5, 0.05))
+    brick_B = Brick(sm.SE3(0.1, 0.5, 0.05))
+
+    bricks = [brick_A, brick_B]
+
+    # add bricks to the environment
+    for b in bricks:
+        env.add(b.obj)
     
     #initialize the controller of the robot
-    controller = Controller(env)
-        
+    controller = Controller(env)       
+
     #initialize the tower
     base = sm.SE3(0.0, 0.0, 0.05)
     tower = Tower(base_pose=base, max_height=2)
+ 
+    #initialize the sensor
+    sensor = Sensor(env, bricks=bricks, towers=[tower], robots=[panda_agent])
     
     #start simulation by iterating each brick in the list
     for _ in range(2):
-        controller.pick_and_place(panda_agent, 'sensor')
+        controller.pick_and_place(panda_agent, sensor)
 
         
         

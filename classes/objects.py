@@ -39,6 +39,7 @@ class Brick:
         self.obj = sg.Cuboid(scale=self.scale, pose=self.start_pose, color=self.color)
 
         self.height = self.scale[2]
+        self.placed = False
     
     def update_position(self, pos):
         """
