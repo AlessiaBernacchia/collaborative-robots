@@ -33,7 +33,7 @@ class Brick:
 
     def __init__(self, start_pose: sm.SE3, scale=[0.1, 0.2, 0.1], color=[0.0, 0.1, 0.9, 0.1], name: str = 'Brick'):
         self.name = name
-        self.start_pose = start_pose
+        self.start_pose = start_pose 
         self.scale = scale
         self.color = color
         self.obj = sg.Cuboid(scale=self.scale, pose=self.start_pose, color=self.color)
@@ -46,6 +46,7 @@ class Brick:
         match the position of the brick to the one of the end-factor
         """
         self.obj.T = pos
+        self.start_pose = pos
 
     def placing_orientation(self):
         """
@@ -54,4 +55,4 @@ class Brick:
         I_R = np.eye(3)
         new_T = self.obj.T.copy()
         new_T[:3, :3] = I_R
-        self.obj.T = new_T
+        self.update_position(new_T)

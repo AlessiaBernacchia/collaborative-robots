@@ -18,17 +18,7 @@ def damped_pseudoinverse(J: np.ndarray):
     return J.T @ np.linalg.inv(J@J.T + 0.01 * np.eye(m))
     
 
-# fittizi
 MAX_SAFE_LIFT_HEIGHT = 0.6
-
-TOWER_BASE_A = sm.SE3(0.0, 0.0, 0.05) 
-TOWER_BASE_B = sm.SE3(0.0, -0.5, 0.0)
-tower_A = Tower(TOWER_BASE_A, max_height=2, name="Tower_1")
-tower_B = Tower(TOWER_BASE_B, max_height=0, name="Tower_2")
-TOWERS = [tower_A, tower_B] 
-brick_A = Brick(sm.SE3(0.0, 0.5, 0.05))
-brick_B = Brick(start_pose=sm.SE3(0.1, 0.5, 0.05))
-FREE_BRICKS = [brick_B, brick_A]  
 
 class Controller:
     """
@@ -42,42 +32,19 @@ class Controller:
         self.max_safe_height = MAX_SAFE_LIFT_HEIGHT
         self.gain = 1.5
 
-        for BRICK in FREE_BRICKS:
-            #brick = Brick(sm.SE3(0.0, 0.5, 0.05))
-            self.__env.add(BRICK.obj)
     
-
-    def compute_qdot(self, robot: rtb.ERobot, target: sm.SE3):
-        """
-        compute the position of the joints
-        """
-        T = robot.fkine(robot.q)
-        error = target.t - T.t
-        J = robot.jacob0(robot.q)[0:3,:]
-        J_inv = damped_pseudoinverse(J)
-        qdot = self.gain*J_inv@error
-        
-        return qdot, error
-        
-    def drag_brick(self, brick, robot:rtb.ERobot):
-        """
-        the robot drag the brick as the arm move
-        """
-        pos = robot.fkine(robot.q)
-        brick.update_position(pos)
+    # general Sensor's requests
 
     def ask_free_bricks(self, sensor):# -> Brick:
         """
         ask to the Sensor class a Brick free to pick
         """
-        # TODO by Sensor developer
         return sensor.get_free_bricks()
     
     def ask_towers(self, sensor):
         """
         ask to the Sensor class the towers
         """
-        # TODO by Sensor developer
         return sensor.get_towers()
 
     def search_uncomplete_tower(self, sensor):
@@ -91,7 +58,6 @@ class Controller:
         towers = sensor.get_incomplete_towers()
         return towers[0] if towers else None
 
-    
     def free_brick(self, sensor):
         """
         return a brick free
@@ -103,6 +69,10 @@ class Controller:
         free_bricks = sensor.get_free_bricks()
         return free_bricks[0] if free_bricks else None
     
+
+
+    # internal methods
+
     def select_brick_and_tower(self, sensor: 'Sensor'):
         """
         select a free brick and a tower to complete from the sensor environent
@@ -134,6 +104,10 @@ class Controller:
         # return poses
         return [T_pick, T_lift, T_transfer, T_release]
     
+
+
+    # Robot's movements
+    
     def move_to_pose(self, agent: Robot_arm, target_pose: sm.SE3, brick: Brick = None, dt: float = 0.01, tol: float = 0.001):
         """
         moves the robot end-effector to a target pose,
@@ -157,7 +131,7 @@ class Controller:
         # select a brick to pick and a tower to complete
         brick_to_pick, target_tower = self.select_brick_and_tower(sensor)
 
-        # calcuate the path points
+        # calculate the path points
         way_points = self.generate_path_points(brick_to_pick, target_tower)
 
         if way_points is None:
@@ -177,7 +151,7 @@ class Controller:
         # increasing the counter of the bricks on the tower
         target_tower.add(brick_placed=brick_to_pick)
 
-        #flag the brick as placed
+        # flag the brick as placed
         brick_to_pick.placed = True
 
 
