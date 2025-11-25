@@ -3,3 +3,4 @@ Pipfile.lock
 .ipynb_checkpoints/
 sketch.ipynb
 __pycache__/
+sketch_controller.ipynb
