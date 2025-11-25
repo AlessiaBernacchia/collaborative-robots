@@ -1,20 +1,29 @@
 import swift
 import spatialmath as sm
 import spatialgeometry as sg
-from classes.sensor import Sensor
-from classes.objects import Tower, FictionalBrick
+#from classes.sensor import Sensor
+#from classes.objects import Tower, FictionalBrick
+import numpy as np
+import roboticstoolbox as rtb
+from classes.robot import Robot_arm
+
+
+def damped_pseudoinverse(J: np.ndarray):
+    m, _ = J.shape
+    return J.T @ np.linalg.inv(J@J.T + 0.01 * np.eye(m))
+    
 
 # fittizi
-MAX_SAFE_LIFT_HEIGHT = 0.6
+#MAX_SAFE_LIFT_HEIGHT = 0.6
 
-TOWER_BASE_A = sm.SE3(0.0, 0.0, 0.0) 
-TOWER_BASE_B = sm.SE3(0.0, -0.5, 0.0)
-tower_A = Tower("Tower_1", TOWER_BASE_A, max_height=3)
-tower_B = Tower("Tower_2", TOWER_BASE_B, max_height=0)
-TOWERS = [tower_A, tower_B] 
-brick_A = FictionalBrick(start_pose=sm.SE3(0.5, 0.5, 0.05))
-brick_B = FictionalBrick(start_pose=sm.SE3(0.5, 0.25, 0.05))
-FREE_BRICKS = [brick_A, brick_B]  
+#TOWER_BASE_A = sm.SE3(0.0, 0.0, 0.0) 
+#TOWER_BASE_B = sm.SE3(0.0, -0.5, 0.0)
+#tower_A = Tower("Tower_1", TOWER_BASE_A, max_height=3)
+#tower_B = Tower("Tower_2", TOWER_BASE_B, max_height=0)
+#TOWERS = [tower_A, tower_B] 
+#brick_A = FictionalBrick(start_pose=sm.SE3(0.5, 0.5, 0.05))
+#brick_B = FictionalBrick(start_pose=sm.SE3(0.5, 0.25, 0.05))
+#FREE_BRICKS = [brick_A, brick_B]  
 
 class Controller:
     """
@@ -25,8 +34,23 @@ class Controller:
         self.__env = env
         #self.__sensor = sensor
         self.max_bricks_in_towel = 10
-        self.max_safe_height = MAX_SAFE_LIFT_HEIGHT
+        #self.max_safe_height = MAX_SAFE_LIFT_HEIGHT
+        self.gain = 1.5
     
+
+    def compute_qdot(self, robot: rtb.ERobot, target):
+        
+        T = robot.fkine(robot.q)
+        error = target.t - T.t
+        J = robot.jacob0(robot.q)[0:3,:]
+        J_inv = damped_pseudoinverse(J)
+        qdot = self.gain*J_inv@error
+        
+        return qdot, error
+        
+    def drag_brick(self, brick, robot:rtb.ERobot):
+        pos = robot.fkine(robot.q)
+        brick.update_position(pos)
 
     def ask_free_bricks(self, sensor):# -> Brick:
         """
@@ -113,7 +137,7 @@ class Controller:
         
         robot.is_busy = False
 
-    def find_available_robot(self) -> FictionalRobot | None:
+    def find_available_robot(self) -> Robot_arm | None:
         """
         Find first robot not busy to complete the task
         """

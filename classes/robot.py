@@ -26,14 +26,5 @@ class Robot_arm:
         self._robot.qd = qdot
 
         
-if __name__ == "__main__":
-    env = swift.Swift()
-    env.launch(realtime=True, comms="rtc", browser="browser")
-    panda_agent = Robot_arm("panda")
-    panda_agent.set_position(-0.5, 0, 0)
-    panda_agent.register(env)
-    
-
-        
 
 

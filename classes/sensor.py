@@ -1,13 +1,13 @@
 import swift
 from classes.objects import Brick, Tower
-from classes.robot import Robot 
+#from classes.robot import Robot 
 class Sensor:
 
-    def __init__(self, env: swift.Swift, bricks: list[Brick], towers: list[Tower], robots: list[Robot]):
+    def __init__(self, env: swift.Swift, bricks: list[Brick], towers: list[Tower]):
         self.env = env
         self.bricks = bricks
         self.towers = towers      
-        self.robots = robots  
+    #    self.robots = robots  
 
     def update(self):
         """
@@ -30,11 +30,10 @@ class Sensor:
         # TODO by Sensor developer
         return self.towers
     
-    def get_robots(self) -> list[Robot]:
-        """
-        return the list of robots in the environment
-        """
-        # TODO by Sensor developer
-        return self.robots   
+    #def get_robots(self) -> list[Robot]:
+    #    """
+    #    return the list of robots in the environment
+    #    """
+    #    return self.robots   
     
     

@@ -1,5 +1,6 @@
 import spatialmath as sm
 import spatialgeometry as sg
+import numpy as np
 
 class Tower:
     def __init__(self, base_pose: sm.SE3, max_height: int):
@@ -29,10 +30,19 @@ class Tower:
 
 class Brick:
 
-    def __init__(self, start_pose, scale=[0.1, 0.2, 0.1], color=[0.0, 0.1, 0.9, 0.1]):
+    def __init__(self, start_pose: sm.SE3, scale=[0.1, 0.2, 0.1], color=[0.0, 0.1, 0.9, 0.1]):
         self.start_pose = start_pose
         self.scale = scale
         self.color = color
         self.obj = sg.Cuboid(scale=self.scale, pose=self.start_pose, color=self.color)
 
         self.height = self.scale[2]
+    
+    def update_position(self, pos):
+        self.obj.T = pos
+
+    def placing_orientation(self):
+        I_R = np.eye(3)
+        new_T = self.obj.T.copy()
+        new_T[:3, :3] = I_R
+        self.obj.T = new_T
