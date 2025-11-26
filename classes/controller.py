@@ -86,24 +86,33 @@ class Controller:
         """
         returns a list of points that define the safe path to do
         """
+        def set_global_height(T: sm.SE3, height: float) -> sm.SE3:
+            # since .copy() doesn't work
+            new_T = sm.SE3(T.A.copy())     # COPIA VERA
+            new_T.t[2] = height
+            return new_T
+
         if not brick_to_pick or not target_tower:
             print("Controller: resources or target are missing")
             return None
-        
+
         T_release_target = target_tower.get_next_pose()
 
         # 1. pick the brick
-        T_pick = brick_to_pick.start_pose
+        T_pick        = sm.SE3(brick_to_pick.start_pose.A.copy())
+        # 0. safe pick pose
+        T_pick_safe   = set_global_height(T_pick, self.max_safe_height)
         # 2. go up until safe height
-        T_lift = T_pick @ sm.SE3([0, 0, self.max_safe_height])
-        # 3. shift on the tower
-        T_transfer = T_release_target @ sm.SE3([0, 0, self.max_safe_height])
-        # 4. correct height where release the brick
-        T_release = T_release_target
+        T_lift        = set_global_height(T_pick, self.max_safe_height)
 
-        # return poses
-        return [T_pick, T_lift, T_transfer, T_release]
-    
+        # 3. shift on the tower
+        T_transfer    = set_global_height(T_release_target, self.max_safe_height)
+        # 4. correct height where release the brick
+        T_release     = sm.SE3(T_release_target.A.copy())
+        
+        T_end         = set_global_height(T_release_target, self.max_safe_height)
+
+        return [T_pick_safe, T_pick, T_lift, T_transfer, T_release, T_end]
 
 
     # Robot's movements
@@ -157,21 +166,24 @@ class Controller:
         
         # go to pick the brick
         self.move_to_pose(agent, way_points[0], dt = dt)
-
+        self.move_to_pose(agent, way_points[1], dt = dt)
+        
         # move and place the brick
-        for target_point in way_points[1:]:
+        for target_point in way_points[2:-1]:
              self.move_to_pose(agent, target_point, brick_to_pick, dt = dt)
 
         # fake parallel placing of the brick
         brick_to_pick.placing_orientation()
+
+        # move to safe height
+        self.move_to_pose(agent, way_points[-1], dt = dt)
+        
         self.__env.step(dt)
 
         # increasing the counter of the bricks on the tower
         target_tower.add(brick_placed=brick_to_pick)
-
         # flag the brick as placed
         brick_to_pick.placed = True
-
 
 
 
