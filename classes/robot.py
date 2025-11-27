@@ -35,7 +35,12 @@ class Robot_arm:
         apply the modification of the joints to the robot
         """
         self._robot.qd = qdot
-
+    
+    def modify_orientation_base(self):
+        """
+        modify the orientation of the robot base
+        """
+        self._robot.base *= sm.SE3.Rz(np.pi)
         
 
 

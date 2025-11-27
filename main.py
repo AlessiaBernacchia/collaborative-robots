@@ -11,8 +11,12 @@ if __name__ == "__main__":
     
     # initialize the robot arm
     panda_agent = Robot_arm("panda")
-    panda_agent.set_position(-0.5, 0.0, 0.0)
+    panda_agent_2 = Robot_arm("panda")
+    panda_agent.set_position(-0.70, 0.0, 0.0)
+    panda_agent_2.set_position(0.70, 0.0, 0.0)
+    panda_agent_2.modify_orientation_base()
     panda_agent.register(env)
+    panda_agent_2.register(env)
 
     # initialize bricks
     brick_A = Brick(sm.SE3(0.0, 0.5, 0.15))
@@ -32,11 +36,11 @@ if __name__ == "__main__":
         env.add(b.obj)
 
     # initialize the tower
-    base_A = sm.SE3(0.2, 0.0, 0.05)
-    tower_A = Tower(base_pose=base_A, max_height=3)
+    base_A = sm.SE3(0.0, 0.2, 0.05)
+    tower_A = Tower(base_pose=base_A, max_height=1)
     
-    base_B = sm.SE3(0.0, 0.0, 0.05)
-    tower_B = Tower(base_pose=base_B, max_height=4)
+    base_B = sm.SE3(0.0, -0.2, 0.05)
+    tower_B = Tower(base_pose=base_B, max_height=1)
     
     towers = [tower_A, tower_B]
     # initialize the controller of the robot
