@@ -57,6 +57,8 @@ if __name__ == "__main__":
         
     panda_agent.plot_metrics()
 
-        
-        
+    panda_agent.plot_top_view()
+    panda_agent.plot_vertical_views()
+    panda_agent.plot_height_over_time()
+
         
