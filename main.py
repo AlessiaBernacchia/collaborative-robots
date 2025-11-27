@@ -48,6 +48,8 @@ if __name__ == "__main__":
     # start simulation by iterating each brick in the list
     for _ in range(len(bricks)):
         controller.pick_and_place(panda_agent, sensor)
+        
+    panda_agent.plot_metrics(0.01)
 
         
         

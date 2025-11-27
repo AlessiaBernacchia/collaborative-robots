@@ -17,6 +17,15 @@ def damped_pseudoinverse(J: np.ndarray):
     m, _ = J.shape
     return J.T @ np.linalg.inv(J@J.T + 0.01 * np.eye(m))
     
+def compute_cond_number(J_inv):
+    """
+    compute the condition number of the inverse jacobian matrix,
+    it indicate how close a matrix to become non-invertible
+    - low condition number -> robot moves normally
+    - high condition number -> direction motion hard/impossible
+    """
+    return np.linalg.cond(J_inv)
+
 
 MAX_SAFE_LIFT_HEIGHT = 0.6
 
@@ -124,9 +133,10 @@ class Controller:
         error = target.t - T.t
         J = robot.jacob0(robot.q)[0:3,:]
         J_inv = damped_pseudoinverse(J)
+        cond_number = compute_cond_number(J_inv)
         qdot = self.gain*J_inv@error
         
-        return qdot, error
+        return qdot, error, cond_number
         
     def drag_brick(self, brick, robot:rtb.ERobot):
         """
@@ -142,8 +152,8 @@ class Controller:
         """
         error = np.inf 
         while np.linalg.norm(error) >= tol:
-            qdot, error = self.compute_qdot(agent._robot, target_pose)
-            agent.apply_velocity_cmd(qdot)
+            qdot, error, cond_number = self.compute_qdot(agent._robot, target_pose)
+            agent.apply_velocity_cmd(qdot, cond_number)
             if brick is not None:
                 self.drag_brick(brick, agent._robot)
             self.__env.step(dt)
