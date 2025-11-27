@@ -5,6 +5,7 @@ import spatialmath as sm
 import swift
 import matplotlib as mtb
 import matplotlib.pyplot as plt
+from time import time 
 
 class Robot_arm:
     def __init__(self, name:str):
@@ -13,6 +14,9 @@ class Robot_arm:
         self._robot.q = self._robot.qr
         self._qd_hist = []
         self._cond_hist = []
+        self._tasks_t = [] 
+        self._time_data = []
+        self._start_time = 0
         
     def register(self, env: swift.Swift):
         """
@@ -36,17 +40,30 @@ class Robot_arm:
         """
         apply the modification of the joints to the robot
         """
+        start = time()
         self._robot.qd = qdot
         self._qd_hist.append(qdot)
         self._cond_hist.append(cond_number)
+        self.keep_time(start)
+        
+    def start_time(self, start):
+        self._start_time = start
+        
+    def keep_time(self, t):
+        self._time_data.append(t-self._start_time)
     
-    def plot_metrics(self, dt):
+    def task_completed(self, t):
+        self._tasks_t.append(t)
+    
+    def plot_metrics(self):
         fig = plt.figure('Joint positions')
-        time_data = np.arange(0,len(self._qd_hist))*dt
+        time_data = np.array(self._time_data)
         plt.xlim(0, time_data[-1])
         plt.grid(True)
         plt.plot(time_data,self._qd_hist,'k')
-        plt.plot(time_data,self._cond_hist,'r--')
+        plt.plot(time_data,self._cond_hist,'b--')
+        for t in self._tasks_t:
+            plt.axvline(x=t, color='red', linestyle='--')
         plt.title('Joint positions')
         plt.xlabel('t [s]')
         plt.ylabel('q_i [rad]')

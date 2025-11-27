@@ -1,6 +1,7 @@
 from classes.robot import *
 from classes.controller import *
 from classes.objects import *
+from time import time
 # from classes.sensor import *
 # from classes import *
 
@@ -46,10 +47,15 @@ if __name__ == "__main__":
     sensor = Sensor(env, bricks=bricks, towers=towers, robots=[panda_agent])
     
     # start simulation by iterating each brick in the list
+    start_time = time()
+    panda_agent.start_time(start_time)
     for _ in range(len(bricks)):
+        start_task = time()-start_time
+        print(start_task)
         controller.pick_and_place(panda_agent, sensor)
+        panda_agent.task_completed(start_task)
         
-    panda_agent.plot_metrics(0.01)
+    panda_agent.plot_metrics()
 
         
         
