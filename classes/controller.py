@@ -108,7 +108,7 @@ class Controller:
         T_release_target = target_tower.get_next_pose()
 
         # 1. pick the brick
-        T_pick        = sm.SE3(brick_to_pick.start_pose.A.copy())
+        T_pick        = sm.SE3(brick_to_pick.pose())
         # 0. safe pick pose
         T_pick_safe   = set_global_height(T_pick, self.max_safe_height)
         # 2. go up until safe height

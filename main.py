@@ -48,7 +48,8 @@ if __name__ == "__main__":
     
     # start simulation by iterating each brick in the list
     start_time = time()
-    panda_agent.start_time(start_time)
+    panda_agent.start_task(start_time)
+    
     for _ in range(len(bricks)):
         start_task = time()-start_time
         print(start_task)
