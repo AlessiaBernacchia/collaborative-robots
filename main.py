@@ -4,6 +4,8 @@ from classes.objects import *
 from time import time
 # from classes.sensor import *
 # from classes import *
+import threading
+import time
 
 if __name__ == "__main__":
     #create the swift enviroment
@@ -53,17 +55,60 @@ if __name__ == "__main__":
     sensor = Sensor(env, bricks=bricks, towers=towers, robots=[panda_agent])
     
     # start simulation by iterating each brick in the list
-    for _ in range(len(bricks)):
-        panda_agent.start_task()
-        panda_agent_2.start_task()
-        controller.pick_and_place(panda_agent, sensor)
-        controller.pick_and_place(panda_agent_2, sensor)
-        panda_agent.task_completed()
-        panda_agent_2.task_completed()        
+    # for _ in range(len(bricks)):
+    #     panda_agent.start_task()
+    #     panda_agent_2.start_task()
+    #     controller.pick_and_place(panda_agent, sensor)
+    #     controller.pick_and_place(panda_agent_2, sensor)
+    #     panda_agent.task_completed()
+    #     panda_agent_2.task_completed()        
 
+    # panda_agent.plot_performance_metrics()
+
+    # panda_agent.plot_3d_trajectory_views()
+    # panda_agent.plot_height_over_time()
+
+    def robot_worker(robot, controller, sensor, max_tasks):
+        """
+        Worker function that executes tasks for a single robot.
+        Each robot will try to complete max_tasks bricks.
+        """
+        tasks_completed = 0
+        
+        while tasks_completed < max_tasks:
+            robot.start_task()
+            result = controller.pick_and_place(robot, sensor)
+            robot.task_completed()
+            
+            if result is None:  # Task completed successfully
+                tasks_completed += 1
+            else:
+                time.sleep(0.5)
+    
+    # Create two threads, one for each robot
+    # Each robot will complete 4 bricks (8 total / 2 robots)
+    
+    thread1 = threading.Thread(
+        target=robot_worker,
+        args=(panda_agent, controller, sensor, 4)
+    )
+    thread2 = threading.Thread(
+        target=robot_worker,
+        args=(panda_agent_2, controller, sensor, 4)
+    )
+    
+    # Start both robots simultaneously
+    thread1.start()
+    thread2.start()
+    
+    # Wait for both robots to complete their tasks
+    thread1.join()
+    thread2.join()
+    
     panda_agent.plot_performance_metrics()
-
+    panda_agent_2.plot_performance_metrics()
     panda_agent.plot_3d_trajectory_views()
     panda_agent.plot_height_over_time()
+
 
         

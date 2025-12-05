@@ -9,6 +9,22 @@ class Tower:
         self._current_logical_height = 0.0
         self.max_height = max_height
         self.bricks = []
+        self.lock = False
+        self.locked_by = None
+
+    def try_lock(self, robot_name: str) -> bool:
+        """ Try to lock the tower for a specific robot """
+        if not self.lock:
+            self.lock = True
+            self.locked_by = robot_name
+            return True
+        return False
+    
+    def unlock(self, robot_name: str) -> bool:
+        """ Unlock the tower if it is locked by the specific robot """
+        if self.lock and self.locked_by == robot_name:
+            self.lock = False
+            self.locked_by = None
     
     def add(self, brick_placed: 'Brick'):
         """Increment height """
@@ -40,6 +56,9 @@ class Brick:
 
         self.height = self.scale[2]
         self.placed = False
+
+        self.lock = False
+        self.locked_by = None
     
     def pose(self):
         """
@@ -62,3 +81,17 @@ class Brick:
         new_T = self.obj.T.copy()
         new_T[:3, :3] = I_R
         self.update_position(new_T)
+
+    def try_lock(self, robot_name: str) -> bool:
+        """ Try to lock the brick for a specific robot """
+        if not self.lock:
+            self.lock = True
+            self.locked_by = robot_name
+            return True
+        return False
+    
+    def unlock(self, robot_name: str) -> bool:
+        """ Unlock the brick if it is locked by the specific robot """
+        if self.lock and self.locked_by == robot_name:
+            self.lock = False
+            self.locked_by = None

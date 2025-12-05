@@ -82,14 +82,32 @@ class Controller:
 
     # internal methods
 
-    def select_brick_and_tower(self, sensor: 'Sensor'):
+    def select_brick_and_tower(self, sensor: 'Sensor', robot_name):
         """
         select a free brick and a tower to complete from the sensor environent
         """
-        brick_to_pick: Brick | None = self.free_brick(sensor)
-        target_tower: Tower | None = self.search_uncomplete_tower(sensor)
-        
-        return brick_to_pick, target_tower
+        #brick_to_pick: Brick | None = self.free_brick(sensor)
+        #target_tower: Tower | None = self.search_uncomplete_tower(sensor)
+        free_bricks = sensor.get_free_bricks()
+        incomplete_towers = sensor.get_incomplete_towers()
+
+        if robot_name == "panda":
+            free_bricks = [b for b in free_bricks if b.pose()[0, 3] <= 0.05]
+        elif robot_name == "panda_2":
+            free_bricks = [b for b in free_bricks if b.pose()[0, 3] > 0.05]
+    
+    
+        #try to lock both resources
+        for brick in free_bricks:
+            if brick.try_lock(robot_name):
+                for tower in incomplete_towers:
+                    if tower.try_lock(robot_name):
+                        return brick, tower
+                # Se non trovo tower, rilascio il brick
+                brick.unlock(robot_name)
+    
+        return None, None
+        #return brick_to_pick, target_tower
     
     def generate_path_points(self, brick_to_pick: Brick | None, target_tower: Tower | None):
         """
@@ -175,7 +193,7 @@ class Controller:
         3. moves the arm to make the task
         """
         # select a brick to pick and a tower to complete
-        brick_to_pick, target_tower = self.select_brick_and_tower(sensor)
+        brick_to_pick, target_tower = self.select_brick_and_tower(sensor, agent.name)
 
         # calculate the path points
         way_points = self.generate_path_points(brick_to_pick, target_tower)
@@ -204,6 +222,9 @@ class Controller:
         # flag the brick as placed
         brick_to_pick.placed = True
 
+        #realase the locsk 
+        brick_to_pick.unlock(agent.name)
+        target_tower.unlock(agent.name)
 
 
 
