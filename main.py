@@ -40,6 +40,7 @@ if __name__ == "__main__":
     tower_B = Tower(base_pose=base_B, max_height=4)
     
     towers = [tower_A, tower_B]
+
     # initialize the controller of the robot
     controller = Controller(env)       
 
@@ -47,19 +48,14 @@ if __name__ == "__main__":
     sensor = Sensor(env, bricks=bricks, towers=towers, robots=[panda_agent])
     
     # start simulation by iterating each brick in the list
-    start_time = time()
-    panda_agent.start_task(start_time)
-    
     for _ in range(len(bricks)):
-        start_task = time()-start_time
-        print(start_task)
+        panda_agent.start_task()
         controller.pick_and_place(panda_agent, sensor)
-        panda_agent.task_completed(start_task)
+        panda_agent.task_completed()
         
-    panda_agent.plot_metrics()
+    panda_agent.plot_performance_metrics()
 
-    panda_agent.plot_top_view()
-    panda_agent.plot_vertical_views()
+    panda_agent.plot_3d_trajectory_views()
     panda_agent.plot_height_over_time()
 
         
