@@ -19,14 +19,12 @@ class Sensor:
         """
         return the list of free bricks in the environment
         """
-        # TODO by Sensor developer
         return [brick for brick in self.bricks if not brick.placed]
     
     def get_towers(self) -> list[Tower]:
         """
         return the list of towers in the environment
         """
-        # TODO by Sensor developer
         return self.towers
     
     def get_incomplete_towers(self) -> list[Tower]:

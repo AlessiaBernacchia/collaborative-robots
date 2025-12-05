@@ -62,6 +62,12 @@ class Robot_arm:
         set the position of the base in the enviroment
         """
         self._robot.base = sm.SE3(x, y, z)
+        
+    def modify_orientation_base(self):
+        """
+        modify the orientation of the robot base
+        """
+        self._robot.base *= sm.SE3.Rz(np.pi)
     
     def end_factor_position(self):
         """
@@ -154,26 +160,34 @@ class Robot_arm:
         # start_time = self._start_time_tasks[idx_first_task]
         # time_data = map(lambda t: t-start_time, np.array(self._time_data))
         
-        fig = plt.figure('Joint positions')
+        fig, ax = plt.subplots(2, 1, figsize=(10, 4))
+        #plt.figure('Robot Control Performance Metrics')
         
         # time_data = np.array(self._time_data)
-        plt.xlim(0, time_data_plot[-1])
-        plt.grid(True)
-        plt.plot(time_data_plot,qd_hist_plot,'k',label='Joint Velocities ($\dot{q}$)')
-        plt.plot(time_data_plot,cond_hist_plot,'b--',label='Jacobian Condition Number ($\kappa$)')
+        ax[0].set_xlim(0, time_data_plot[-1])
+        ax[1].set_xlim(0, time_data_plot[-1])
+        ax[0].grid(True)
+        ax[1].grid(True)
+        ax[0].plot(time_data_plot,qd_hist_plot,'k',label=r'Joint Velocities ($\dot{q}$)')
+        ax[1].plot(time_data_plot,cond_hist_plot,'b--',label=r'Jacobian Condition Number ($\kappa$)')
 
         has_label = False
         for t in task_markers:
             label = "Task End Boundary" if not has_label else None
-            plt.axvline(x=t, linestyle='--', color='red', alpha=0.4, label=label)
+            ax[0].axvline(x=t, linestyle='--', color='red', alpha=0.4, label=label)
+            ax[1].axvline(x=t, linestyle='--', color='red', alpha=0.4, label=label)
+
             has_label = True
 
-        plt.title('Robot Control Performance Metrics - joint positions')
-        plt.xlabel('Time [s]')
-        plt.ylabel(r'Value (cond num and $q_i [rad]$)')
+        ax[0].set_title('Robot Control Performance Metrics')
+        #.title('Robot Control Performance Metrics - joint positions')
+        ax[1].set_xlabel('Time [s]')
+        ax[1].set_ylabel(r'Condition number')
+        ax[0].set_ylabel(r'$q_i [rad]$')
         
         plt.grid(True, alpha=0.5, color='0.95')
-        # plt.legend()
+        #ax[0].legend()
+        #ax[1].legend()
         plt.show()
 
     def get_trajectory(self):
@@ -205,7 +219,7 @@ class Robot_arm:
         end_pos = ee[-1]
         
         # 1. Top View (XY)
-        axes[0].plot(ee[:,0], ee[:,1], linewidth=2.5, color='blue')
+        axes[0].plot(ee[:,0], ee[:,1], linewidth=1.5, color='blue', alpha=0.5)
         # axes[0].scatter(start_pos[0], start_pos[1], c='green', s=120, edgecolor='black', label='Start/Pick')
         # axes[0].scatter(end_pos[0], end_pos[1], c='red', s=120, edgecolor='black', label='End/Place')
         axes[0].set_title("Top View (XY Plane)")
@@ -214,7 +228,7 @@ class Robot_arm:
         axes[0].axis("equal")
         
         # 2. Side View (XZ Plane)
-        axes[1].plot(ee[:,0], ee[:,2], linewidth=2.5, color='blue')
+        axes[1].plot(ee[:,0], ee[:,2], linewidth=1.5, color='blue', alpha=0.5)
         axes[1].axhline(0, linestyle='--', color='brown', alpha=0.6, label="Base Level")
         axes[1].set_title("Side View (XZ Plane)")
         axes[1].set_xlabel("X [m]")
@@ -222,7 +236,7 @@ class Robot_arm:
         axes[1].axis("equal")
         
         # 3. Front View (YZ Plane)
-        axes[2].plot(ee[:,1], ee[:,2], linewidth=2.5, color='blue')
+        axes[2].plot(ee[:,1], ee[:,2], linewidth=1.5, color='blue', alpha=0.5)
         axes[2].axhline(0, linestyle='--', color='brown', alpha=0.6, label="Base Level")
         axes[2].set_title("Front View (YZ Plane)")
         axes[2].set_xlabel("Y [m]")
@@ -249,7 +263,7 @@ class Robot_arm:
             return
 
         plt.figure('Height Over Time', figsize=(6, 6))
-        plt.plot(ee[:,0], ee[:,1], linewidth=2.5)
+        plt.plot(ee[:,0], ee[:,1], linewidth=1.5)
         plt.scatter(ee[0,0], ee[0,1], c='green', s=120, edgecolor='black', label='Pick')
         plt.scatter(ee[-1,0], ee[-1,1], c='red', s=120, edgecolor='black', label='Place')
 
@@ -267,14 +281,14 @@ class Robot_arm:
         fig, axes = plt.subplots(1, 2, figsize=(12, 5))
 
         # Side view (XZ)
-        axes[0].plot(ee[:,0], ee[:,2], linewidth=2.5)
+        axes[0].plot(ee[:,0], ee[:,2], linewidth=1.5)
         axes[0].axhline(0, linestyle='--', color='brown', alpha=0.6)
         axes[0].set_title("Side View (XZ)")
         axes[0].set_xlabel("X [m]")
         axes[0].set_ylabel("Z [m]")
 
         # Front view (YZ)
-        axes[1].plot(ee[:,1], ee[:,2], linewidth=2.5)
+        axes[1].plot(ee[:,1], ee[:,2], linewidth=1.5)
         axes[1].axhline(0, linestyle='--', color='brown', alpha=0.6)
         axes[1].set_title("Front View (YZ)")
         axes[1].set_xlabel("Y [m]")
@@ -345,7 +359,7 @@ class Robot_arm:
         plt.figure('Height Over Time', figsize=(10, 5))
         
         # height wrt Z
-        plt.plot(time_data_plot, ee_z_plot, linewidth=2.5, color='purple')
+        plt.plot(time_data_plot, ee_z_plot, linewidth=1.5, color='purple')
         plt.axhline(0, linestyle='--', color='brown', alpha=0.6, label="Table Level")
 
         # Aggiunge le linee verticali di separazione delle attività
