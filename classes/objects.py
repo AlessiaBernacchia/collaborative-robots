@@ -41,6 +41,12 @@ class Brick:
         self.height = self.scale[2]
         self.placed = False
     
+    def pose(self):
+        """
+        the current pose of the Cuboid
+        """
+        return self.obj.T
+    
     def update_position(self, pos):
         """
         match the position of the brick to the one of the end-factor

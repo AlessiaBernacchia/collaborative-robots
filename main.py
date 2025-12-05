@@ -1,6 +1,7 @@
 from classes.robot import *
 from classes.controller import *
 from classes.objects import *
+from time import time
 # from classes.sensor import *
 # from classes import *
 
@@ -43,6 +44,7 @@ if __name__ == "__main__":
     tower_B = Tower(base_pose=base_B, max_height=1)
     
     towers = [tower_A, tower_B]
+
     # initialize the controller of the robot
     controller = Controller(env)       
 
@@ -51,8 +53,13 @@ if __name__ == "__main__":
     
     # start simulation by iterating each brick in the list
     for _ in range(len(bricks)):
+        panda_agent.start_task()
         controller.pick_and_place(panda_agent, sensor)
+        panda_agent.task_completed()
+        
+    panda_agent.plot_performance_metrics()
 
-        
-        
+    panda_agent.plot_3d_trajectory_views()
+    panda_agent.plot_height_over_time()
+
         
