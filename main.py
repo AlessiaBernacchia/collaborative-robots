@@ -12,7 +12,7 @@ if __name__ == "__main__":
     
     # initialize the robot arm
     panda_agent = Robot_arm("panda")
-    panda_agent_2 = Robot_arm("panda")
+    panda_agent_2 = Robot_arm("panda_2", sm.SE3.Rz(np.pi))
     panda_agent.set_position(-0.70, 0.0, 0.0)
     panda_agent_2.set_position(0.70, 0.0, 0.0)
     panda_agent_2.modify_orientation_base()

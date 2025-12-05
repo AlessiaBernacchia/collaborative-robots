@@ -8,12 +8,13 @@ import matplotlib.pyplot as plt
 from time import time 
 
 class Robot_arm:
-    def __init__(self, name:str):
+    def __init__(self, name:str, frame=sm.SE3.Rz(0)):
         self.name = name
         self._robot = rtb.models.Panda()
         self._robot.q = self._robot.qr
         self._busy = False
         self._distance = np.inf
+        self._transform = frame
 
         # q dot history
         self._qd_hist = []
@@ -76,9 +77,7 @@ class Robot_arm:
         """
         modify the orientation of the robot base
         """
-        tool = sm.SE3.Rz(np.pi)
-        self._robot.base *= tool
-        #self._robot.tool *= tool
+        self._robot.base = self._robot.base@self._transform
     
     def end_factor_position(self):
         """

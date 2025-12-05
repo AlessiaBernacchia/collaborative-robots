@@ -125,10 +125,13 @@ class Controller:
 
 
     # Robot's movements
-    def compute_qdot(self, robot: rtb.ERobot, target: sm.SE3):
+    def compute_qdot(self, robot: Robot_arm, target: sm.SE3):
         """
         compute the position of the joints
         """
+        #target = target.inv()@sm.SE3.Tx(1)
+        #target = target@sm.SE3.Ty(-1)@sm.SE3.Tx(-1)
+        robot = robot._robot
         T = robot.fkine(robot.q)
         error = target.t - T.t
         J = robot.jacob0(robot.q)[0:3,:]
@@ -152,7 +155,7 @@ class Controller:
         """
         error = np.inf 
         while np.linalg.norm(error) >= tol:
-            qdot, error, cond_number = self.compute_qdot(agent._robot, target_pose)
+            qdot, error, cond_number = self.compute_qdot(agent, target_pose)
             agent.apply_velocity_cmd(qdot, cond_number, error)
             if brick is not None:
                 self.drag_brick(brick, agent._robot)
