@@ -129,16 +129,22 @@ class Controller:
         """
         compute the position of the joints
         """
-        #target = target.inv()@sm.SE3.Tx(1)
-        #target = target@sm.SE3.Ty(-1)@sm.SE3.Tx(-1)
+        r_name = robot.name 
         robot = robot._robot
         T = robot.fkine(robot.q)
         error = target.t - T.t
+        if r_name == "panda_2":
+            error_bot = error.copy()
+            error_bot[0] = -error[0]
+            error_bot[1] = -error[1]
         J = robot.jacob0(robot.q)[0:3,:]
         J_inv = damped_pseudoinverse(J)
         cond_number = compute_cond_number(J_inv)
-        qdot = self.gain*J_inv@error
+        if r_name == "panda_2":
+            qdot = self.gain*J_inv@error_bot
+            return qdot, error_bot, cond_number
         
+        qdot = self.gain*J_inv@error
         return qdot, error, cond_number
         
     def drag_brick(self, brick, robot:rtb.ERobot):

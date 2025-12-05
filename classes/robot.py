@@ -15,6 +15,7 @@ class Robot_arm:
         self._busy = False
         self._distance = np.inf
         self._transform = frame
+        self._position = None
 
         # q dot history
         self._qd_hist = []
@@ -71,13 +72,13 @@ class Robot_arm:
         """
         set the position of the base in the enviroment
         """
-        self._robot.base = sm.SE3(x, y, z)
+        self._position = sm.SE3(x, y, z)
         
     def modify_orientation_base(self):
         """
         modify the orientation of the robot base
         """
-        self._robot.base = self._robot.base@self._transform
+        self._robot.base = self._position@self._transform
     
     def end_factor_position(self):
         """

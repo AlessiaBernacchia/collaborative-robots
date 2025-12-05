@@ -15,6 +15,7 @@ if __name__ == "__main__":
     panda_agent_2 = Robot_arm("panda_2", sm.SE3.Rz(np.pi))
     panda_agent.set_position(-0.70, 0.0, 0.0)
     panda_agent_2.set_position(0.70, 0.0, 0.0)
+    panda_agent.modify_orientation_base()
     panda_agent_2.modify_orientation_base()
     panda_agent.register(env)
     panda_agent_2.register(env)
@@ -53,11 +54,11 @@ if __name__ == "__main__":
     
     # start simulation by iterating each brick in the list
     for _ in range(len(bricks)):
-        #panda_agent.start_task()
+        panda_agent.start_task()
         panda_agent_2.start_task()
-        #controller.pick_and_place(panda_agent, sensor)
+        controller.pick_and_place(panda_agent, sensor)
         controller.pick_and_place(panda_agent_2, sensor)
-        #panda_agent.task_completed()
+        panda_agent.task_completed()
         panda_agent_2.task_completed()        
 
     panda_agent.plot_performance_metrics()
