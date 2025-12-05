@@ -13,6 +13,7 @@ class Robot_arm:
         self._robot = rtb.models.Panda()
         self._robot.q = self._robot.qr
         self._busy = False
+        self._distance = np.inf
 
         # q dot history
         self._qd_hist = []
@@ -35,6 +36,14 @@ class Robot_arm:
         if it's free -> False
         """
         return self._busy
+    
+    @property 
+    def distance(self):
+        """
+        getter function that return the distance
+        between the end-factor and the target
+        """
+        return self._distance
     
     def update_current_state(self, cond_number: float):
         """
@@ -67,7 +76,9 @@ class Robot_arm:
         """
         modify the orientation of the robot base
         """
-        self._robot.base *= sm.SE3.Rz(np.pi)
+        tool = sm.SE3.Rz(np.pi)
+        self._robot.base *= tool
+        #self._robot.tool *= tool
     
     def end_factor_position(self):
         """
@@ -76,12 +87,13 @@ class Robot_arm:
         # return np.asarray(self._robot.q, dtype=float)
         return self._robot.fkine(self._robot.q).t
         
-    def apply_velocity_cmd(self, qdot: np.ndarray, cond_number: float):
+    def apply_velocity_cmd(self, qdot: np.ndarray, cond_number: float, error):
         """
         apply the modification of the joints to the robot
         """
         self._robot.qd = qdot
         self.update_current_state(cond_number)
+        self._distance = np.linalg.norm(error)
         
     def start_task(self):
         """

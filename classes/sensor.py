@@ -1,6 +1,7 @@
 import swift
 from classes.objects import Brick, Tower
 from classes.robot import Robot_arm
+import numpy as np
 class Sensor:
 
     def __init__(self, env: swift.Swift, bricks: list[Brick], towers: list[Tower], robots: list):
@@ -44,6 +45,19 @@ class Sensor:
         # for robot in self.robots:
         #     robot.current_pose = robot._robot.fkine(robot.q)
 
-  
+    def check_collision(self):
+        """
+        check if the two robots' end-factors are in a 
+        dangerous distance between each others
+        """
+        distance = np.linalg.norm(self.robots[0].end_factor_position()-self.robots[1].end_factor_position())
+        if distance <= 0.15:
+            return True
+        return False
+    
+    def robot_distance(self):
+        return self.robots[0].distance, self.robots[1].distance
+
+        
     
     

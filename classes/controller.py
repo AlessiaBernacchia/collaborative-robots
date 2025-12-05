@@ -153,7 +153,7 @@ class Controller:
         error = np.inf 
         while np.linalg.norm(error) >= tol:
             qdot, error, cond_number = self.compute_qdot(agent._robot, target_pose)
-            agent.apply_velocity_cmd(qdot, cond_number)
+            agent.apply_velocity_cmd(qdot, cond_number, error)
             if brick is not None:
                 self.drag_brick(brick, agent._robot)
             self.__env.step(dt)

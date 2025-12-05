@@ -53,10 +53,13 @@ if __name__ == "__main__":
     
     # start simulation by iterating each brick in the list
     for _ in range(len(bricks)):
-        panda_agent.start_task()
-        controller.pick_and_place(panda_agent, sensor)
-        panda_agent.task_completed()
-        
+        #panda_agent.start_task()
+        panda_agent_2.start_task()
+        #controller.pick_and_place(panda_agent, sensor)
+        controller.pick_and_place(panda_agent_2, sensor)
+        #panda_agent.task_completed()
+        panda_agent_2.task_completed()        
+
     panda_agent.plot_performance_metrics()
 
     panda_agent.plot_3d_trajectory_views()
