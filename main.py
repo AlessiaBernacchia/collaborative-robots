@@ -1,6 +1,7 @@
 from classes.robot import *
 from classes.controller import *
 from classes.objects import *
+from classes.task_manager import *
 from time import time
 # from classes.sensor import *
 # from classes import *
@@ -41,18 +42,21 @@ if __name__ == "__main__":
 
     # initialize the tower
     base_A = sm.SE3(0.0, 0.2, 0.05)
-    tower_A = Tower(base_pose=base_A, max_height=1)
+    tower_A = Tower(base_pose=base_A, max_height=4)
     
     base_B = sm.SE3(0.0, -0.2, 0.05)
-    tower_B = Tower(base_pose=base_B, max_height=1)
+    tower_B = Tower(base_pose=base_B, max_height=4)
     
     towers = [tower_A, tower_B]
 
     # initialize the controller of the robot
-    controller = Controller(env)       
+    #controller = Controller(env)       
 
     # initialize the sensor
-    sensor = Sensor(env, bricks=bricks, towers=towers, robots=[panda_agent])
+    sensor = Sensor(env, bricks=bricks, towers=towers, robots=[panda_agent, panda_agent_2])
+    
+
+    controller = Controller(env, sensor) 
     
     # start simulation by iterating each brick in the list
     # for _ in range(len(bricks)):

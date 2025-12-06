@@ -34,12 +34,12 @@ class Controller:
     class that include the logic of the Robot's movement
     Collaborative Task Manager
     """
-    def __init__(self, env: swift.Swift): #,sensor: Sensor =None):
+    def __init__(self, env: swift.Swift, sensor): #,sensor: Sensor =None):
         self.__env = env
-        #self.__sensor = sensor
         self.max_bricks_in_towel = 10
         self.max_safe_height = MAX_SAFE_LIFT_HEIGHT
         self.gain = 1.5
+        self._sensor = sensor
 
     
     # general Sensor's requests
@@ -151,14 +151,14 @@ class Controller:
         robot = robot._robot
         T = robot.fkine(robot.q)
         error = target.t - T.t
+        J = robot.jacob0(robot.q)[0:3,:]
+        J_inv = damped_pseudoinverse(J)
+        cond_number = compute_cond_number(J_inv)
+        
         if r_name == "panda_2":
             error_bot = error.copy()
             error_bot[0] = -error[0]
             error_bot[1] = -error[1]
-        J = robot.jacob0(robot.q)[0:3,:]
-        J_inv = damped_pseudoinverse(J)
-        cond_number = compute_cond_number(J_inv)
-        if r_name == "panda_2":
             qdot = self.gain*J_inv@error_bot
             return qdot, error_bot, cond_number
         
@@ -180,6 +180,17 @@ class Controller:
         error = np.inf 
         while np.linalg.norm(error) >= tol:
             qdot, error, cond_number = self.compute_qdot(agent, target_pose)
+            if self._sensor.check_collision():
+                if agent.name == "panda":
+                    _, other_error = self._sensor.robot_distance()
+                    if np.linalg.norm(error) > other_error:
+                        qdot, error, cond_number = self.compute_qdot(agent, target_pose*sm.SE3.Tx(-0.3))
+                else:
+                    other_error, _ = self._sensor.robot_distance()
+                    if np.linalg.norm(error) > other_error:
+                        qdot, error, cond_number = self.compute_qdot(agent, target_pose*sm.SE3.Tx(0.3))
+                    
+                
             agent.apply_velocity_cmd(qdot, cond_number, error)
             if brick is not None:
                 self.drag_brick(brick, agent._robot)

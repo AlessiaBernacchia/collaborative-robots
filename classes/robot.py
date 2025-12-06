@@ -16,6 +16,7 @@ class Robot_arm:
         self._distance = np.inf
         self._transform = frame
         self._position = None
+        self._continue = True
 
         # q dot history
         self._qd_hist = []
