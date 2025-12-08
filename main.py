@@ -2,11 +2,132 @@ from classes.robot import *
 from classes.controller import *
 from classes.objects import *
 from classes.task_manager import *
-from time import time
+
+import matplotlib.pyplot as plt
+from matplotlib.gridspec import GridSpec
 # from classes.sensor import *
 # from classes import *
 import threading
 import time
+import os
+
+PLOTS_DIR = './plots'
+
+def save_image(fig, file_name, dir_path=PLOTS_DIR):
+    """
+    Save the image in the given path, with the given name
+    
+    :param fig: Figure created with matplotlib
+    :param file_name: name to save the figure (e.g. 'image.png')
+    :param dir_path: directory's path in which save the image. Defaults './plots'. 
+    """
+    file_path = os.path.join(dir_path, file_name)
+
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path)
+        print(f"Created directory: {PLOTS_DIR}")
+
+    try:
+        fig.savefig(file_path, bbox_inches='tight', dpi=300)
+        print(f"Image successfully saved to: {file_path}")
+    except Exception as e:
+        print(f"Error saving figure: {e}")
+
+def global_limits(robots, n_dims=3, marg=0.2):
+    xyz_min = [np.inf] * 3
+    xyz_max = [-np.inf] * 3
+
+    for robot in robots:
+        ee, _ = robot.get_trajectory()
+        # skip robot with no data
+        if len(ee) == 0:
+            continue
+        for i in range(n_dims): # i = 0 (X), 1 (Y), 2 (Z)
+            # find min and max on the current dimension i
+            i_min = np.min(ee[:,i]) - marg
+            i_max = np.max(ee[:,i]) + marg
+            # update local variable
+            xyz_min[i] = min(xyz_min[i], i_min)
+            xyz_max[i] = max(xyz_max[i], i_max)
+
+    # since
+    # xyz_min = x_min, y_min, z_min
+    # xyz_max = x_max, y_max, z_max
+    # global_limits = [[x_min, x_max], [y_min, y_max], [z_min, z_max]]
+    global_limits = [[xyz_min[dim],xyz_max[dim]] for dim in range(n_dims)]
+
+    # if min and max coincides
+    for dim in range(n_dims):
+        if global_limits[dim][0] == global_limits[dim][1]:
+            center = global_limits[dim][0]
+            global_limits[dim] = [center - 0.1, center + 0.1]
+            
+    return global_limits
+    
+def plot_all_metrics_combined(panda_agent_1, panda_agent_2, global_limits_3d=None, start_time=None, end_time=None, figsize=(15,10), show=True, f=8):
+    """
+    Create an unique figure with all metrics and trajectories
+    """
+    fig = plt.figure(figsize=figsize) 
+    
+    # Define the grid
+    gs = GridSpec(5, 6, figure=fig, hspace=1, wspace=0.6)
+
+    # Metrics (qd and cond) 
+    # for robot 1
+    ax_qd_1   = fig.add_subplot(gs[0, 0:3])  # Robot 1: q_dot (su 2 colonne)
+    ax_cond_1 = fig.add_subplot(gs[1, 0:3], sharex=ax_qd_1) # Robot 1: kappa (sotto qd_1)
+    # for robot 2
+    ax_qd_2   = fig.add_subplot(gs[0, 3:6], sharey=ax_qd_1)  # Robot 2: q_dot (sulla stessa scala Y di qd_1)
+    ax_cond_2 = fig.add_subplot(gs[1, 3:6], sharex=ax_qd_2) # Robot 2: kappa 
+    
+    # Height across time
+    ax_height = fig.add_subplot(gs[2, 0:6]) # Altezza vs Tempo (su 3 colonne)
+
+    # 3d trajectory (Views XY, XZ, YZ)
+    ax_xy_traj = fig.add_subplot(gs[3:5, 0:2]) # Top View
+    ax_xz_traj = fig.add_subplot(gs[3:5, 2:4], sharex=ax_xy_traj) # Side View
+    ax_yz_traj = fig.add_subplot(gs[3:5, 4:6], sharex=ax_xy_traj) # Front View
+    
+    # Robot 1: Plot metrics on axes [ax_qd_1, ax_cond_1]
+    panda_agent_1.plot_performance_metrics(axes=[ax_qd_1, ax_cond_1], qd_color='blue', cond_color='darkblue')
+    # Robot 2: Plot metrics on axes [ax_qd_2, ax_cond_2]
+    panda_agent_2.plot_performance_metrics(axes=[ax_qd_2, ax_cond_2], qd_color='orange', cond_color='darkorange')
+
+    # 3D Trajectory
+    axes_traj_3d = [ax_xy_traj, ax_xz_traj, ax_yz_traj]
+    panda_agent_1.plot_3d_trajectory_views(axes=axes_traj_3d, line_color='blue', global_limits=global_limits_3d, f=f)
+    panda_agent_2.plot_3d_trajectory_views(axes=axes_traj_3d, line_color='orange', global_limits=global_limits_3d, f=f)
+
+    # Height across time
+    panda_agent_1.plot_height_over_time(ax=ax_height, line_color='blue', 
+                                        start_time=start_time, end_time=end_time, global_limits=global_limits_3d, 
+                                        f=f)
+    panda_agent_2.plot_height_over_time(ax=ax_height, line_color='orange', 
+                                        start_time=start_time, end_time=end_time, global_limits=global_limits_3d, 
+                                        f=f)
+
+    ax_qd_1.set_xlabel('') 
+    ax_qd_2.set_xlabel('') 
+    ax_height.set_xlabel('Time [s]')
+    
+    for ax in axes_traj_3d:
+        ax.set_aspect('equal', adjustable='box')
+        ax.legend(loc='lower right')
+    
+    axes = [ax_cond_1, ax_cond_2, ax_height]
+    for ax in axes:
+        ax.legend(loc='lower right')
+
+    # ax_cond_1.legend(False)
+    # ax_cond_2.legend(False)
+    
+    fig.suptitle('Collaborative Robotics: Performance and Trajectory Analysis', fontsize=18)
+    
+    if show:
+        plt.show()
+
+    return fig
 
 if __name__ == "__main__":
     #create the swift enviroment
@@ -49,13 +170,10 @@ if __name__ == "__main__":
     
     towers = [tower_A, tower_B]
 
-    # initialize the controller of the robot
-    #controller = Controller(env)       
-
     # initialize the sensor
     sensor = Sensor(env, bricks=bricks, towers=towers, robots=[panda_agent, panda_agent_2])
     
-
+    # initialize the controller of the robot  
     controller = Controller(env, sensor) 
     
     # start simulation by iterating each brick in the list
@@ -91,7 +209,7 @@ if __name__ == "__main__":
     
     # Create two threads, one for each robot
     # Each robot will complete 4 bricks (8 total / 2 robots)
-    
+    start_time = time.time()
     thread1 = threading.Thread(
         target=robot_worker,
         args=(panda_agent, controller, sensor, 4)
@@ -109,10 +227,13 @@ if __name__ == "__main__":
     thread1.join()
     thread2.join()
     
-    panda_agent.plot_performance_metrics()
-    panda_agent_2.plot_performance_metrics()
-    panda_agent.plot_3d_trajectory_views()
-    panda_agent.plot_height_over_time()
+    end_time=time.time()
+    
+
+    global_range = global_limits([panda_agent, panda_agent_2]) 
+    fig = plot_all_metrics_combined(panda_agent, panda_agent_2, global_range, start_time, end_time, figsize=(17,20))
+    # save_image(fig, 'plot_metrics_and_trajectory.png')
 
 
-        
+
+            

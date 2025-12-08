@@ -13,7 +13,9 @@ class Tower:
         self.locked_by = None
 
     def try_lock(self, robot_name: str) -> bool:
-        """ Try to lock the tower for a specific robot """
+        """ 
+        Try to lock the tower for a specific robot 
+        """
         if not self.lock:
             self.lock = True
             self.locked_by = robot_name
@@ -21,13 +23,17 @@ class Tower:
         return False
     
     def unlock(self, robot_name: str) -> bool:
-        """ Unlock the tower if it is locked by the specific robot """
+        """ 
+        Unlock the tower if it is locked by the specific robot 
+        """
         if self.lock and self.locked_by == robot_name:
             self.lock = False
             self.locked_by = None
     
     def add(self, brick_placed: 'Brick'):
-        """Increment height """
+        """
+        Increment height 
+        """
         self.bricks.append(brick_placed)
         self._current_logical_height += brick_placed.height
 
@@ -42,6 +48,9 @@ class Tower:
 
         
     def is_complete(self) -> bool:
+        """
+        Return whether the tower is complete.
+        """
         return len(self.bricks) >= self.max_height
     
 
@@ -83,7 +92,9 @@ class Brick:
         self.update_position(new_T)
 
     def try_lock(self, robot_name: str) -> bool:
-        """ Try to lock the brick for a specific robot """
+        """ 
+        Try to lock the brick for a specific robot 
+        """
         if not self.lock:
             self.lock = True
             self.locked_by = robot_name
@@ -91,7 +102,9 @@ class Brick:
         return False
     
     def unlock(self, robot_name: str) -> bool:
-        """ Unlock the brick if it is locked by the specific robot """
+        """ 
+        Unlock the brick if it is locked by the specific robot 
+        """
         if self.lock and self.locked_by == robot_name:
             self.lock = False
             self.locked_by = None

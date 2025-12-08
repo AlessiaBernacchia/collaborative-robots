@@ -116,22 +116,190 @@ class Robot_arm:
         #self._tasks_t.append(t)
         self._end_time_tasks.append(time())
         self._busy = False
+    def _get_absolute_time_window(self, idx_first_task: int, idx_last_task: int, 
+                                start_time: float = None, end_time: float = None):
+        """
+        Helper function to determine the absolute start and end timestamps 
+        based on task indices or manual time overrides.
+        
+        Returns:
+            tuple[float, float] | None: (start_time_abs, end_time_abs) or None on error.
+        """
+        
+        # absolute start time (start_time_abs)
+        try:
+            if start_time is not None:
+                start_time_abs = start_time
+            else:
+                # use first start time of the first task
+                start_time_abs = self._start_time_tasks[idx_first_task]
+        except IndexError:
+            print("Error: Task window indices are out of range for start times.")
+            return None, None
 
-    # TODO: quando faremo più tasks non va bene salvare lo start_time
-    # bisogna salvare i tempi in modo 'sporco', senza -start_time
-    # e 'pulirli' solo quando si plotta in base alla task a cui si fa riferimento
-    # quindi tenere le due liste self._time_data e sels._tasks_t (che tiene i tempi limiti delle tasks, quindi i futuri possibili start_time in base alla task di riferimento)
-    # o due liste: start_tasks_time e end_tasks_time
+        # absolute end time (end_time_abs)
+        if end_time is not None:
+            end_time_abs = end_time
+        elif idx_last_task < len(self._end_time_tasks):
+            # use last end time of the lasr task
+            end_time_abs = self._end_time_tasks[idx_last_task]
+        else:
+            # if no end time provided or it is out of range -> last time data provided
+            end_time_abs = self._time_data[-1] if self._time_data else start_time_abs
+
+        return start_time_abs, end_time_abs
     
-    def plot_performance_metrics(self, window_tasks=None):
+
+    def get_trajectory(self):
+        """
+        Retrieves the history of end-effector positions and corresponding time data.
+
+        Returns:
+            tuple[np.ndarray, np.ndarray]: (ee_positions, time_data)
+        """
+        ee = np.array(self._ee_pos_hist)
+        t = np.array(self._time_data)
+
+        if len(ee) == 0:
+            print("No trajectory data available to plot.")
+        
+        return ee, t
+    
+    def plot_side_view(self, ee=None, ax=None, line_color="blue", f=14):
+        """
+        Plot on the axes or new figure the Side View's trajectory of the robot. 
+        """
+        if ax is None:
+            fig, ax = plt.subplots(1,1,figsize=(6,5))
+        
+        if ee is None:
+            ee, _ = self.get_trajectory()
+
+        ax.plot(ee[:,0], ee[:,2], linewidth=1.5, color=line_color, label=self.name)
+        ax.axhline(0, linestyle='--', color='brown', alpha=0.6, label="Base Level")
+        ax.set_title("Side View (XZ Plane)", fontsize=f)
+        ax.set_xlabel("X [m]")
+        ax.set_ylabel("Z [m]")
+        ax.grid(True, alpha=0.3)
+
+        if ax is None:
+            plt.tight_layout()
+            plt.show()
+
+    def plot_front_view(self, ee=None, ax=None, line_color="blue", f=14):
+        """
+        Plot on the axes or new figure the Front View's trajectory of the robot. 
+        """
+        if ax is None:
+            fig, ax = plt.subplots(1,1,figsize=(6,5))
+        
+        if ee is None:
+            ee, _ = self.get_trajectory()
+
+        ax.plot(ee[:,1], ee[:,2], linewidth=1.5, color=line_color, label=self.name)
+        ax.axhline(0, linestyle='--', color='brown', alpha=0.6, label="Base Level")
+        ax.set_title("Front View (YZ Plane)", fontsize=f)
+        ax.set_xlabel("Y [m]")
+        ax.set_ylabel("Z [m]")
+        ax.grid(True, alpha=0.3)
+
+        if ax is None:
+            plt.tight_layout()
+            plt.show()
+        
+    def plot_top_view(self, ee=None, ax=None, line_color="blue", f=14):
+        """
+        Plot on the axes or new figure the Top View's trajectory of the robot. 
+        """
+        if ax is None:
+            fig, ax = plt.subplots(1,1,figsize=(6,5))
+        
+        if ee is None:
+            ee, _ = self.get_trajectory()
+
+        ax.plot(ee[:,0], ee[:,1], linewidth=1.5, color=line_color, label=self.name)
+        # ax.scatter(ee[0,0], ee[0,1], c='green', s=120, edgecolor='black', label='Pick')
+        # ax.scatter(ee[-1,0], ee[-1,1], c='red', s=120, edgecolor='black', label='Place')
+        ax.axhline(0, linestyle='--', color='brown', alpha=0.6)
+        ax.set_title("Top View (XY Plane)", fontsize=f)
+        ax.set_xlabel("X [m]")
+        ax.set_ylabel("Y [m]")
+        ax.grid(True, alpha=0.3)
+
+        if ax is None:
+            plt.tight_layout()
+            plt.show()
+
+    def plot_3d_trajectory_views(self, axes=None, line_color="blue", global_limits=None, f=14):
+        """
+        Plots the robot's end-effector trajectory in three orthogonal 2D views 
+        (Top, Side, Front) on a single figure, applying global limits for uniformity.
+        
+        Args:
+            global_limits (list, optional): axes limits [[x_min, x_max], [y_min, y_max], [z_min, z_max]].
+        """
+        ee, _ = self.get_trajectory()
+
+        if axes is None:
+            fig, axes = plt.subplots(1, 3, figsize=(10, 4))
+
+        # Common settings
+        start_pos = ee[0]
+        end_pos = ee[-1]
+        
+        # 1. Top View (XY)
+        self.plot_top_view(ee, axes[0], line_color, f=f)
+        # axes[0].scatter(start_pos[0], start_pos[1], c='green', s=120, edgecolor='black', label='Start/Pick')
+        # axes[0].scatter(end_pos[0], end_pos[1], c='red', s=120, edgecolor='black', label='End/Place')
+        
+        # 2. Side View (XZ Plane)
+        self.plot_side_view(ee, axes[1], line_color, f=f)
+        
+        # 3. Front View (YZ Plane)
+        self.plot_front_view(ee, axes[2], line_color, f=f)
+        axes[2].legend()
+
+        # Apply global limits
+        if global_limits is None:
+            axes[0].axis("equal")
+            axes[1].axis("equal")
+            axes[2].axis("equal")
+            print("Warning: Using default limits based on current robot data only.")
+        else:
+            x_lims, y_lims, z_lims = global_limits
+            axes[0].set_xlim(x_lims)
+            axes[0].set_ylim(y_lims)
+            axes[1].set_xlim(x_lims)
+            axes[1].set_ylim(z_lims)
+            axes[2].set_xlim(y_lims)
+            axes[2].set_ylim(z_lims)
+        
+        # Apply common styling
+        for ax in axes:
+            ax.grid(True, alpha=0.3)
+
+        if axes is None:
+            fig.suptitle('End-Effector Trajectory in 3D Views', fontsize=12)
+            plt.tight_layout(rect=[0, 0, 1, 0.95]) # Adjust layout to fit suptitle
+            plt.show()
+
+    def plot_performance_metrics(self, window_tasks=None, axes=None,
+                                 qd_color='k', cond_color='b',
+                                 start_time=None, end_time=None):
         """
         Plots the robot's control metrics: Joint Velocities (q_dot) and 
         Jacobian Condition Number, filtered by a specified task window.
         
         Args:
-            window_tasks (list, optional): [start_task_index, end_task_index]
-                                            to filter the plotted data. Defaults to all tasks.
+            window_tasks (list, optional): [start_task_index, end_task_index] to filter data.
+            axes (list[matplotlib.axes.Axes], optional): Two axes objects [ax_qd, ax_cond] to plot onto. 
+                                                        If None, a new figure is created.
+            qd_color (str, optional): Color for Joint Velocities (q_dot) line.
+            cond_color (str, optional): Color for Jacobian Condition Number (kappa) line.
+            start_time (float, optional): Absolute time override for plot start.
+            end_time (float, optional): Absolute time override for plot end.
         """
+        # retrieve relatives times
         if window_tasks is None:
             window_tasks = [0, len(self._start_time_tasks)]
         
@@ -141,17 +309,11 @@ class Robot_arm:
         if idx_last_task >= len(self._start_time_tasks):
             idx_last_task = len(self._start_time_tasks) - 1
 
-        # determine the absolute start and end times for the window
-        start_time_abs = self._start_time_tasks[idx_first_task]
-
-        if idx_last_task < len(self._end_time_tasks):
-            end_time_abs = self._end_time_tasks[idx_last_task]
-        else:
-            # if the last task end time is not available, use the last logged time
-            end_time_abs = self._time_data[-1] if self._time_data else start_time_abs
-
+        start_time_abs, end_time_abs = self._get_absolute_time_window(idx_first_task, idx_last_task,
+                                                                      start_time, end_time)
+        
         time_data_np = np.array(self._time_data)
-
+        
         # find index of the first temporal point >= start_time_abs
         start_idx = np.searchsorted(time_data_np, start_time_abs, side='left')
         # find index of the first temporal point >= end_time_abs
@@ -173,157 +335,69 @@ class Robot_arm:
         # start_time = self._start_time_tasks[idx_first_task]
         # time_data = map(lambda t: t-start_time, np.array(self._time_data))
         
-        fig, ax = plt.subplots(2, 1, figsize=(10, 4))
-        #plt.figure('Robot Control Performance Metrics')
+        # plotting
+        if axes is None:
+            fig, axes = plt.subplots(2, 1, figsize=(10, 4))
+            show_plot = True
+        else:
+            show_plot = False
         
-        # time_data = np.array(self._time_data)
-        ax[0].set_xlim(0, time_data_plot[-1])
-        ax[1].set_xlim(0, time_data_plot[-1])
-        ax[0].grid(True)
-        ax[1].grid(True)
-        ax[0].plot(time_data_plot,qd_hist_plot,'k',label=r'Joint Velocities ($\dot{q}$)')
-        ax[1].plot(time_data_plot,cond_hist_plot,'b--',label=r'Jacobian Condition Number ($\kappa$)')
+        ax_qd, ax_cond = axes
+
+        # 1. Plot Joint Velocities (q_dot)
+        ax_qd.plot(time_data_plot, qd_hist_plot, color=qd_color, label=f'{self.name}_ Joint Velocity ($\\dot{{q}}$)')
+
+        # 2. Plot Condition Number (kappa)
+        ax_cond.plot(time_data_plot, cond_hist_plot, color=cond_color, linestyle='--',
+                     label=f'{self.name}_ Jacobian Condition Number ($\\kappa$)')
+        
+        # 3. add markers
+
+        for ax in axes:
+            ax.set_xlim(0, time_data_plot[-1])
+            ax.grid(True)
 
         has_label = False
         for t in task_markers:
-            label = "Task End Boundary" if not has_label else None
-            ax[0].axvline(x=t, linestyle='--', color='red', alpha=0.4, label=label)
-            ax[1].axvline(x=t, linestyle='--', color='red', alpha=0.4, label=label)
+            label = f"{self.name} _ Task End Boundary" if not has_label else None
+            ax_qd.axvline(x=t, linestyle='--', color=cond_color, alpha=0.4, label=label)
+            ax_cond.axvline(x=t, linestyle='--', color=qd_color, alpha=0.4, label=label)
 
             has_label = True
 
-        ax[0].set_title('Robot Control Performance Metrics')
+        ax_qd.set_title(f'{self.name} Control Performance Metrics')
         #.title('Robot Control Performance Metrics - joint positions')
-        ax[1].set_xlabel('Time [s]')
-        ax[1].set_ylabel(r'Condition number')
-        ax[0].set_ylabel(r'$q_i [rad]$')
+        ax_qd.set_ylabel(r'$q_i [rad]$')
+        ax_qd.set_xlim(0, time_data_plot[-1]) 
+        ax_qd.grid(True, alpha=0.5, color='0.95')
+        # ax_qd.legend(loc='best')
         
-        plt.grid(True, alpha=0.5, color='0.95')
-        #ax[0].legend()
-        #ax[1].legend()
-        plt.show()
-
-    def get_trajectory(self):
-        """
-        Retrieves the history of end-effector positions and corresponding time data.
-
-        Returns:
-            tuple[np.ndarray, np.ndarray]: (ee_positions, time_data)
-        """
-        ee = np.array(self._ee_pos_hist)
-        t = np.array(self._time_data)
-        return ee, t
-
-    def plot_3d_trajectory_views(self):
-        """
-        Plots the robot's end-effector trajectory in three orthogonal 2D views 
-        (Top, Side, Front) on a single figure.
-        """
-        ee, _ = self.get_trajectory()
-
-        if len(ee) == 0:
-            print("No trajectory data available to plot.")
-            return
-
-        fig, axes = plt.subplots(1, 3, figsize=(10, 4))
+        ax_cond.set_xlabel('Time [s]')
+        ax_cond.set_ylabel(r'Condition number ($\kappa$)')
+        ax_cond.set_xlim(0, time_data_plot[-1]) 
+        ax_cond.grid(True, alpha=0.5, color='0.95')
+        ax_cond.legend(loc='best')
         
-        # Common settings
-        start_pos = ee[0]
-        end_pos = ee[-1]
-        
-        # 1. Top View (XY)
-        axes[0].plot(ee[:,0], ee[:,1], linewidth=1.5, color='blue', alpha=0.5)
-        # axes[0].scatter(start_pos[0], start_pos[1], c='green', s=120, edgecolor='black', label='Start/Pick')
-        # axes[0].scatter(end_pos[0], end_pos[1], c='red', s=120, edgecolor='black', label='End/Place')
-        axes[0].set_title("Top View (XY Plane)")
-        axes[0].set_xlabel("X [m]")
-        axes[0].set_ylabel("Y [m]")
-        axes[0].axis("equal")
-        
-        # 2. Side View (XZ Plane)
-        axes[1].plot(ee[:,0], ee[:,2], linewidth=1.5, color='blue', alpha=0.5)
-        axes[1].axhline(0, linestyle='--', color='brown', alpha=0.6, label="Base Level")
-        axes[1].set_title("Side View (XZ Plane)")
-        axes[1].set_xlabel("X [m]")
-        axes[1].set_ylabel("Z [m]")
-        axes[1].axis("equal")
-        
-        # 3. Front View (YZ Plane)
-        axes[2].plot(ee[:,1], ee[:,2], linewidth=1.5, color='blue', alpha=0.5)
-        axes[2].axhline(0, linestyle='--', color='brown', alpha=0.6, label="Base Level")
-        axes[2].set_title("Front View (YZ Plane)")
-        axes[2].set_xlabel("Y [m]")
-        axes[2].set_ylabel("Z [m]")
-        axes[2].axis("equal")
-        
-        # Apply common styling
-        for ax in axes:
-            ax.grid(True, alpha=0.3)
-            
-        fig.suptitle('End-Effector Trajectory in 3D Views', fontsize=12)
-        plt.tight_layout(rect=[0, 0, 1, 0.95]) # Adjust layout to fit suptitle
-        plt.show()
+        if show_plot:
+            plt.tight_layout()
+            plt.show()
 
-    def plot_top_view(self):
-        """
-        Plots the end-effector's vertical position (Z-coordinate) as a function of time,
-        showing task separation markers.
-        """
-        ee, _ = self.get_trajectory()
-
-        if len(ee) == 0:
-            print("No trajectory data available to plot.")
-            return
-
-        plt.figure('Height Over Time', figsize=(6, 6))
-        plt.plot(ee[:,0], ee[:,1], linewidth=1.5)
-        plt.scatter(ee[0,0], ee[0,1], c='green', s=120, edgecolor='black', label='Pick')
-        plt.scatter(ee[-1,0], ee[-1,1], c='red', s=120, edgecolor='black', label='Place')
-
-        plt.title("Top View (XY)", fontsize=14)
-        plt.xlabel("X [m]")
-        plt.ylabel("Y [m]")
-        plt.axis("equal")
-        plt.grid(True, alpha=0.3)
-        plt.legend()
-        plt.show()
-
-    def plot_vertical_views(self):
-        ee, _ = self.get_trajectory()
-
-        fig, axes = plt.subplots(1, 2, figsize=(12, 5))
-
-        # Side view (XZ)
-        axes[0].plot(ee[:,0], ee[:,2], linewidth=1.5)
-        axes[0].axhline(0, linestyle='--', color='brown', alpha=0.6)
-        axes[0].set_title("Side View (XZ)")
-        axes[0].set_xlabel("X [m]")
-        axes[0].set_ylabel("Z [m]")
-
-        # Front view (YZ)
-        axes[1].plot(ee[:,1], ee[:,2], linewidth=1.5)
-        axes[1].axhline(0, linestyle='--', color='brown', alpha=0.6)
-        axes[1].set_title("Front View (YZ)")
-        axes[1].set_xlabel("Y [m]")
-        axes[1].set_ylabel("Z [m]")
-
-        for ax in axes:
-            ax.grid(True, alpha=0.3)
-
-        plt.tight_layout()
-        plt.show()
-
-    def plot_height_over_time(self, window_tasks=None):
+    def plot_height_over_time(self, window_tasks=None, start_time=None, end_time=None,
+                              ax=None, line_color='purple', global_limits=None, f=14):
         """
         Plots the end-effector's vertical position (Z-coordinate) as a function of time,
         using relative time and showing task separation markers, filtered by task window.
         
         Args:
-            window_tasks (list, optional): [start_task_index, end_task_index] 
-                                        to filter the plotted data. Defaults to all tasks.
+            window_tasks (list, optional): [start_task_index, end_task_index] to filter data.
+            start_time (float, optional): Absolute time override for plot start.
+            end_time (float, optional): Absolute time override for plot end.
+            ax (matplotlib.axes.Axes, optional): Specific axes object to plot onto. 
+                                                If None, a new figure is created.
+            line_color (str, optional): Color of the height trajectory line.
+            global_z_limits (list, optional): [min_z, max_z] limits for the Y-axis (Z position).
         """
         # retrieve relatives times
-
         if window_tasks is None:
             window_tasks = [0, len(self._start_time_tasks)]
         
@@ -333,17 +407,12 @@ class Robot_arm:
         if idx_last_task >= len(self._start_time_tasks):
             idx_last_task = len(self._start_time_tasks) - 1
 
-        # get absolute start and end times
-        try:
-            start_time_abs = self._start_time_tasks[idx_first_task]
-        except IndexError:
-            print("Error: Task window indices are out of range for start times.")
-            return
-
-        if idx_last_task < len(self._end_time_tasks):
-            end_time_abs = self._end_time_tasks[idx_last_task]
-        else:
-            end_time_abs = self._time_data[-1] if self._time_data else start_time_abs
+        start_time_abs, end_time_abs = self._get_absolute_time_window(idx_first_task, idx_last_task,
+                                                                      start_time, end_time)
+        if start_time is not None:
+            start_time_abs = start_time
+        if end_time is not None:
+            end_time_abs = end_time
 
         time_data_np = np.array(self._time_data)
         ee, _ = self.get_trajectory() # Get full trajectory data
@@ -360,34 +429,44 @@ class Robot_arm:
             print("No data in the specified tasks window.")
             return
 
-        # prepare task vertical lines 
-        # only in thw window
+        # prepare task vertical lines (scaled to relative time)
+        # only in the window
         task_end_markers = [
             t - start_time_abs for t in self._end_time_tasks 
             if start_time_abs <= t <= end_time_abs
         ]
         
         # plotting
-
-        plt.figure('Height Over Time', figsize=(10, 5))
+        if ax is None:
+            fig, ax = plt.subplots(1, 1, figsize=(10, 5))
+            #plt.figure('Height Over Time', figsize=(10, 5))
         
         # height wrt Z
-        plt.plot(time_data_plot, ee_z_plot, linewidth=1.5, color='purple')
-        plt.axhline(0, linestyle='--', color='brown', alpha=0.6, label="Table Level")
+        ax.plot(time_data_plot, ee_z_plot, linewidth=1.5, color=line_color, label=f'{self.name} Height')
+        ax.axhline(0, linestyle='--', color='brown', alpha=0.6, label="Table Level" if ax.get_legend() is None else None)
 
-        # Aggiunge le linee verticali di separazione delle attività
+        # Adds vertical lines as tasks' separators
         # flag to add label once in the legend
         has_label = False
         for t in task_end_markers:
             label = "Task End Boundary" if not has_label else None
-            plt.axvline(t, linestyle='--', color='red', alpha=0.4, label=label)
+            ax.axvline(t, linestyle='--', color='red', alpha=0.4, label=label)
             has_label = True
 
-        plt.title("End-Effector Height (Z) Over Relative Time", fontsize=14)
-        plt.xlabel("Time [s] (Relative to Task Start)")
-        plt.ylabel("Z Position [m]")
-        plt.xlim(0, time_data_plot[-1]) 
+        if ax.get_title() == '':
+            ax.set_title("End-Effector Height (Z) Over Relative Time", fontsize=f)
+            ax.set_xlabel("Time [s] (Relative to Task Start)")
+            ax.set_ylabel("Z Position [m]")
+
+        # apply limits referred to z axis
+        if global_limits is not None:
+            ax.set_ylim(global_limits[2])
+
+        ax.set_xlim(0, time_data_plot[-1]) 
         
-        plt.grid(True, alpha=0.3)
-        plt.legend(loc='best')
-        plt.show()
+        ax.grid(True, alpha=0.3)
+        ax.legend(loc='best')
+
+        if ax is None:
+            plt.tight_layout()
+            plt.show()

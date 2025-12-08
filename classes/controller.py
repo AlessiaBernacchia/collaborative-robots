@@ -2,7 +2,6 @@ import swift
 import spatialmath as sm
 import spatialgeometry as sg
 from classes.sensor import Sensor
-#from classes.objects import Tower, FictionalBrick
 import numpy as np
 import roboticstoolbox as rtb
 # from classes import *
@@ -60,10 +59,6 @@ class Controller:
         """
         search between the towers in the environment one that is incomplete
         """
-        #for t in self.ask_towers(sensor):
-        #    if not t.is_complete():
-        #        return t
-        #return None
         towers = sensor.get_incomplete_towers()
         return towers[0] if towers else None
 
@@ -71,10 +66,6 @@ class Controller:
         """
         return a brick free
         """
-        # free_bricks = self.ask_free_bricks(sensor)
-        # if len(free_bricks) > 0:
-        #   return free_bricks.pop(0)
-        # return None
         free_bricks = sensor.get_free_bricks()
         return free_bricks[0] if free_bricks else None
     
@@ -236,31 +227,3 @@ class Controller:
         #realase the locsk 
         brick_to_pick.unlock(agent.name)
         target_tower.unlock(agent.name)
-
-
-
-
-
-# # TODO: in future for task manager
-# def execute_stacking_sequence(self, robot, brick, target_pose):
-#     # calculate complete path
-#     sequence_of_poses = self._calculate_full_path(brick.start_pose, target_pose)
-#     # avoid collisions
-#     for pose in sequence_of_poses:
-#         if self.is_path_safe(robot, pose):
-#             robot.move_to_pose(pose)
-#         else:
-#             print(f"{robot.name}: STOPPED MOVEMENT TO AVOID COLLISION")
-#             return
-    
-#     robot.is_busy = False
-
-# def find_available_robot(self) -> Robot_arm | None:
-#     """
-#     Find first robot not busy to complete the task
-#     """
-#     for robot in self.__robots:
-#         if not robot.is_busy:
-#             robot.is_busy = True
-#             return robot
-#     return None

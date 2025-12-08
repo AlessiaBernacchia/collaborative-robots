@@ -56,6 +56,9 @@ class Sensor:
         return False
     
     def robot_distance(self):
+        """
+        Return the distance between the end factors
+        """
         return self.robots[0].distance, self.robots[1].distance
 
         
