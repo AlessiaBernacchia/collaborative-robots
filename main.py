@@ -119,8 +119,8 @@ def plot_all_metrics_combined(panda_agent_1, panda_agent_2, global_limits_3d=Non
     for ax in axes:
         ax.legend(loc='lower right')
 
-    # ax_cond_1.legend(False)
-    # ax_cond_2.legend(False)
+    ax_cond_1.legend([])
+    ax_cond_2.legend([])
     
     fig.suptitle('Collaborative Robotics: Performance and Trajectory Analysis', fontsize=18)
     
