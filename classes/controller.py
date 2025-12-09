@@ -134,7 +134,6 @@ class Controller:
             #         other_error, _ = self._sensor.robot_distance()
             #         if np.linalg.norm(error) > other_error:
             #             qdot, error, cond_number = self.compute_qdot(agent, target_pose*sm.SE3.Tx(0.3))
-                    
             agent.apply_velocity_cmd(qdot_final, cond_number, error)
 
             if brick is not None:

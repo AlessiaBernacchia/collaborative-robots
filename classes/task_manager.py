@@ -126,8 +126,10 @@ class TaskManager:
         # safe pose
         self._controller.move_to_pose(agent, way_points[0], task_manager=self, dt = dt)
         # pick the brick
+        print(agent.name, " reached 0")
+        
         self._controller.move_to_pose(agent, way_points[1], task_manager=self, dt = dt)
-
+        print(agent.name, " reached 1")
         # 2. move and place the brick
         for target_point in way_points[2:-1]:
             self._controller.move_to_pose(agent, target_point, brick=brick_to_pick, task_manager=self, dt = dt)
@@ -162,30 +164,34 @@ class TaskManager:
 
             robot_target_distances = list(self._sensor.get_current_robot_target_distances())
             # # robot started now
-            # if all(robot_target_distances) == np.inf:
+            #if all(robot_target_distances) == np.inf:
             #     if agent.name == ROBOT_WITH_PRECEDENCE_NAME:
             #         return True
             #     return False
             
-            if agent.name == ROBOT_WITH_PRECEDENCE_NAME:
-                return True
-            return False
+            #if agent.name == ROBOT_WITH_PRECEDENCE_NAME:
+            #    return True
+            #return False
         
-        #     idx_agent = get_index_by_name(self._robots, agent.name)
-        #     # robot_distance = robot_target_distances.pop(idx)
-        #     future_robot_distance = agent_error
-        #     other_robots_distances = [d for i, d in enumerate(robot_target_distances) if i != idx_agent]
-        #     min_other_distance = min(other_robots_distances)
+            idx_agent = get_index_by_name(self._robots, agent.name)
+        #     # robot_distance = robot_target_distances.pop(idx_agent)
+            future_robot_distance = agent_error
+            other_robots_distances = [d for i, d in enumerate(robot_target_distances) if i != idx_agent]
+            min_other_distance = min(other_robots_distances)
+            #print(f"future_robot_distance: {future_robot_distance}")
+            #print(f"other_robots_distances: {other_robots_distances}")
+            #print(f"min_other_distance: {min_other_distance}")
+            #print(agent.name)
 
         #     # can move only if 
         #     # it is the nearest to the target pose 
-        #     if agent.name == ROBOT_WITH_PRECEDENCE_NAME:
+            if agent.name == ROBOT_WITH_PRECEDENCE_NAME:
         #         # if more robots has the same error, it has the precedence
-        #         can_move = future_robot_distance <= min_other_distance
-        #     else:
-        #         can_move = future_robot_distance < min_other_distance
+                can_move = future_robot_distance <= min_other_distance
+            else:
+                can_move = future_robot_distance < min_other_distance
 
-        #     return can_move
+            return can_move
         
         return True
 
