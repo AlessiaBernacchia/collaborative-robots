@@ -51,6 +51,12 @@ class Robot_arm:
         """
         return self._distance
     
+    def reset_distance(self):
+        """
+        reset the distance
+        """
+        self._distance = np.inf
+
     def update_current_state(self, cond_number: float):
         """
         update the histories: qdot, conditional number and end factor positions

@@ -119,7 +119,7 @@ class Controller:
             qdot_final = qdot_initial
 
             if not can_move:
-                qdot_avoidance, _, _ = self.compute_qdot(agent, target_pose@agent._safe_transition)
+                qdot_avoidance, error, _ = self.compute_qdot(agent, target_pose@agent._safe_transition)
                 qdot_final = qdot_avoidance
 
             # if self._sensor.check_collision():
@@ -140,3 +140,4 @@ class Controller:
                 self.drag_brick(brick, agent._robot)
 
             self.__env.step(dt)
+        agent.reset_distance()

@@ -51,7 +51,7 @@ class Sensor:
         dangerous distance between each others
         """
         distance = np.linalg.norm(self.robots[0].end_factor_position()-self.robots[1].end_factor_position())
-        if distance <= 0.15:
+        if distance <= 0.2:
             return True
         return False
     
