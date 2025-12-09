@@ -135,14 +135,16 @@ if __name__ == "__main__":
     env.launch(realtime=True, comms="rtc", browser="browser")
     
     # initialize the robot arm
-    panda_agent = Robot_arm("panda")
-    panda_agent_2 = Robot_arm("panda_2", sm.SE3.Rz(np.pi))
+    panda_agent = Robot_arm("panda", sm.SE3.Rz(0), sm.SE3.Tx(0.3))
+    panda_agent_2 = Robot_arm("panda_2", sm.SE3.Rz(np.pi), sm.SE3.Tx(-0.3))
     panda_agent.set_position(-0.70, 0.0, 0.0)
     panda_agent_2.set_position(0.70, 0.0, 0.0)
     panda_agent.modify_orientation_base()
     panda_agent_2.modify_orientation_base()
     panda_agent.register(env)
     panda_agent_2.register(env)
+
+    robots = [panda_agent, panda_agent_2]
 
     # initialize bricks
     brick_A = Brick(sm.SE3(0.0, 0.5, 0.15))
@@ -171,10 +173,12 @@ if __name__ == "__main__":
     towers = [tower_A, tower_B]
 
     # initialize the sensor
-    sensor = Sensor(env, bricks=bricks, towers=towers, robots=[panda_agent, panda_agent_2])
-    
+    sensor = Sensor(env, bricks=bricks, towers=towers, robots=robots)
     # initialize the controller of the robot  
-    controller = Controller(env, sensor) 
+    controller = Controller(env) 
+    # initialize the task manager
+    task_manager = TaskManager(env, sensor, robots=robots, controller=controller)
+    
     
     # start simulation by iterating each brick in the list
     # for _ in range(len(bricks)):
@@ -199,7 +203,8 @@ if __name__ == "__main__":
         
         while tasks_completed < max_tasks:
             robot.start_task()
-            result = controller.pick_and_place(robot, sensor)
+            result = task_manager.place_one_brick(robot)
+            # result = controller.pick_and_place(robot, sensor)
             robot.task_completed()
             
             if result is None:  # Task completed successfully
@@ -230,7 +235,7 @@ if __name__ == "__main__":
     end_time=time.time()
     
 
-    global_range = global_limits([panda_agent, panda_agent_2]) 
+    global_range = global_limits(robots) 
     fig = plot_all_metrics_combined(panda_agent, panda_agent_2, global_range, start_time, end_time, figsize=(17,20))
     # save_image(fig, 'plot_metrics_and_trajectory.png')
 

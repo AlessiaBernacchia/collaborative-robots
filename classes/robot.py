@@ -8,13 +8,16 @@ import matplotlib.pyplot as plt
 from time import time 
 
 class Robot_arm:
-    def __init__(self, name:str, frame=sm.SE3.Rz(0)):
+    def __init__(self, name:str, frame=sm.SE3.Rz(0), safe_transition=sm.SE3.Tx(0.3)):
         self.name = name
         self._robot = rtb.models.Panda()
         self._robot.q = self._robot.qr
-        self._busy = False
-        self._distance = np.inf
+        
+        self._safe_transition = safe_transition
         self._transform = frame
+
+        self._distance = np.inf
+        self._busy = False
         self._position = None
         self._continue = True
 
@@ -116,6 +119,7 @@ class Robot_arm:
         #self._tasks_t.append(t)
         self._end_time_tasks.append(time())
         self._busy = False
+
     def _get_absolute_time_window(self, idx_first_task: int, idx_last_task: int, 
                                 start_time: float = None, end_time: float = None):
         """

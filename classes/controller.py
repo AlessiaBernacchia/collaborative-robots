@@ -1,7 +1,7 @@
 import swift
 import spatialmath as sm
 import spatialgeometry as sg
-from classes.sensor import Sensor
+
 import numpy as np
 import roboticstoolbox as rtb
 # from classes import *
@@ -31,74 +31,13 @@ MAX_SAFE_LIFT_HEIGHT = 0.6
 class Controller:
     """
     class that include the logic of the Robot's movement
-    Collaborative Task Manager
+    Translates high-level tasks into low-level joint velocity commands 
+    and executes movement, checking precedence with the Task Manager during conflicts.
     """
-    def __init__(self, env: swift.Swift, sensor): #,sensor: Sensor =None):
+    def __init__(self, env: swift.Swift):
         self.__env = env
-        self.max_bricks_in_towel = 10
         self.max_safe_height = MAX_SAFE_LIFT_HEIGHT
-        self.gain = 1.5
-        self._sensor = sensor
-
-    
-    # general Sensor's requests
-
-    def ask_free_bricks(self, sensor):# -> Brick:
-        """
-        ask to the Sensor class a Brick free to pick
-        """
-        return sensor.get_free_bricks()
-    
-    def ask_towers(self, sensor):
-        """
-        ask to the Sensor class the towers
-        """
-        return sensor.get_towers()
-
-    def search_uncomplete_tower(self, sensor):
-        """
-        search between the towers in the environment one that is incomplete
-        """
-        towers = sensor.get_incomplete_towers()
-        return towers[0] if towers else None
-
-    def free_brick(self, sensor):
-        """
-        return a brick free
-        """
-        free_bricks = sensor.get_free_bricks()
-        return free_bricks[0] if free_bricks else None
-    
-
-
-    # internal methods
-
-    def select_brick_and_tower(self, sensor: 'Sensor', robot_name):
-        """
-        select a free brick and a tower to complete from the sensor environent
-        """
-        #brick_to_pick: Brick | None = self.free_brick(sensor)
-        #target_tower: Tower | None = self.search_uncomplete_tower(sensor)
-        free_bricks = sensor.get_free_bricks()
-        incomplete_towers = sensor.get_incomplete_towers()
-
-        if robot_name == "panda":
-            free_bricks = [b for b in free_bricks if b.pose()[0, 3] <= 0.05]
-        elif robot_name == "panda_2":
-            free_bricks = [b for b in free_bricks if b.pose()[0, 3] > 0.05]
-    
-    
-        #try to lock both resources
-        for brick in free_bricks:
-            if brick.try_lock(robot_name):
-                for tower in incomplete_towers:
-                    if tower.try_lock(robot_name):
-                        return brick, tower
-                # Se non trovo tower, rilascio il brick
-                brick.unlock(robot_name)
-    
-        return None, None
-        #return brick_to_pick, target_tower
+        self.gain = 1.5    
     
     def generate_path_points(self, brick_to_pick: Brick | None, target_tower: Tower | None):
         """
@@ -111,7 +50,7 @@ class Controller:
             return new_T
 
         if not brick_to_pick or not target_tower:
-            print("Controller: resources or target are missing")
+            print(f"Controller: resources or target are missing")
             return None
 
         T_release_target = target_tower.get_next_pose()
@@ -163,67 +102,42 @@ class Controller:
         pos = robot.fkine(robot.q)
         brick.update_position(pos)
     
-    def move_to_pose(self, agent: Robot_arm, target_pose: sm.SE3, brick: Brick = None, dt: float = 0.01, tol: float = 0.001):
+    def move_to_pose(self, agent: Robot_arm, target_pose: sm.SE3, task_manager, brick: Brick = None, dt: float = 0.01, tol: float = 0.001):
         """
         moves the robot end-effector to a target pose,
         if brick is specified, the robot drags it
+        Moves the robot end-effector to a target pose, managing anti-collision 
+        precedence at every step.
         """
         error = np.inf 
-        while np.linalg.norm(error) >= tol:
-            qdot, error, cond_number = self.compute_qdot(agent, target_pose)
-            if self._sensor.check_collision():
-                if agent.name == "panda":
-                    _, other_error = self._sensor.robot_distance()
-                    if np.linalg.norm(error) > other_error:
-                        qdot, error, cond_number = self.compute_qdot(agent, target_pose*sm.SE3.Tx(-0.3))
-                else:
-                    other_error, _ = self._sensor.robot_distance()
-                    if np.linalg.norm(error) > other_error:
-                        qdot, error, cond_number = self.compute_qdot(agent, target_pose*sm.SE3.Tx(0.3))
-                    
+        # while np.linalg.norm(error) >= tol:
+        while agent.distance >= tol:
+            qdot_initial, error, cond_number = self.compute_qdot(agent, target_pose)
+            error_norm = np.linalg.norm(error)
+            can_move = task_manager.resolve_collision_precedence(agent, error_norm)
+            print(f'{agent.name}: can I move? {can_move}')
+            qdot_final = qdot_initial
+
+            if not can_move:
+                qdot_avoidance, _, _ = self.compute_qdot(agent, target_pose@agent._safe_transition)
+                qdot_final = qdot_avoidance
+
+            # if self._sensor.check_collision():
                 
-            agent.apply_velocity_cmd(qdot, cond_number, error)
+            #     # TODO: ask to task manager if move or not 
+            #     # (the task manager checks distance robot-target, the nearest moves)
+            #     if agent.name == "panda":
+            #         _, other_error = self._sensor.robot_distance()
+            #         if np.linalg.norm(error) > other_error:
+            #             qdot, error, cond_number = self.compute_qdot(agent, target_pose*sm.SE3.Tx(-0.3))
+            #     else:
+            #         other_error, _ = self._sensor.robot_distance()
+            #         if np.linalg.norm(error) > other_error:
+            #             qdot, error, cond_number = self.compute_qdot(agent, target_pose*sm.SE3.Tx(0.3))
+                    
+            agent.apply_velocity_cmd(qdot_final, cond_number, error)
+
             if brick is not None:
                 self.drag_brick(brick, agent._robot)
+
             self.__env.step(dt)
-
-    def pick_and_place(self, agent: Robot_arm, sensor: 'Sensor', dt: float = 0.01):
-        """
-        given the agent and the sensor:
-        1. selects a free brick and a tower to complete
-        2. calculates the points to follow to complete the task
-        3. moves the arm to make the task
-        """
-        # select a brick to pick and a tower to complete
-        brick_to_pick, target_tower = self.select_brick_and_tower(sensor, agent.name)
-
-        # calculate the path points
-        way_points = self.generate_path_points(brick_to_pick, target_tower)
-
-        if way_points is None:
-            return None
-        
-        # go to pick the brick
-        self.move_to_pose(agent, way_points[0], dt = dt)
-        self.move_to_pose(agent, way_points[1], dt = dt)
-        
-        # move and place the brick
-        for target_point in way_points[2:-1]:
-             self.move_to_pose(agent, target_point, brick_to_pick, dt = dt)
-
-        # fake parallel placing of the brick
-        brick_to_pick.placing_orientation()
-
-        # move to safe height
-        self.move_to_pose(agent, way_points[-1], dt = dt)
-        
-        self.__env.step(dt)
-
-        # increasing the counter of the bricks on the tower
-        target_tower.add(brick_placed=brick_to_pick)
-        # flag the brick as placed
-        brick_to_pick.placed = True
-
-        #realase the locsk 
-        brick_to_pick.unlock(agent.name)
-        target_tower.unlock(agent.name)

@@ -55,9 +55,9 @@ class Sensor:
             return True
         return False
     
-    def robot_distance(self):
+    def get_current_robot_target_distances(self):
         """
-        Return the distance between the end factors
+        Return the distance between the end factors and them target poses
         """
         return self.robots[0].distance, self.robots[1].distance
 
