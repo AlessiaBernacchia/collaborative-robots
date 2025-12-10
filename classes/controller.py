@@ -135,6 +135,11 @@ class Controller:
                 self.__env.step(dt)
                 waiting_counter += dt
             
+            if waiting_counter >= waiting_t:
+                agent.reset_distance()
+                continue
+
+            
             agent.apply_velocity_cmd(qdot_final, cond_number, error)
 
             if brick is not None:

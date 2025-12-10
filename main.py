@@ -147,8 +147,8 @@ if __name__ == "__main__":
     robots = [panda_agent, panda_agent_2]
 
     # initialize bricks
-    brick_A = Brick(sm.SE3(0.0, 0.5, 0.15))
-    brick_B = Brick(sm.SE3(0.0, 0.5, 0.05))
+    brick_A = Brick(sm.SE3(0.0, 0.5, 0.15), color_name="Yellow")
+    brick_B = Brick(sm.SE3(0.0, 0.5, 0.05), color_name="Red")
     brick_C = Brick(sm.SE3(0.11, 0.5, 0.15))
     brick_D = Brick(sm.SE3(0.11, 0.5, 0.05))
 
