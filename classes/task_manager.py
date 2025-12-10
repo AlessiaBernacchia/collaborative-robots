@@ -53,14 +53,17 @@ class TaskManager:
         """
         return self._sensor.get_towers()
 
-    def search_uncomplete_tower(self):
+    def search_uncomplete_tower(self, brick):
         """
         search between the towers in the environment one that is incomplete and unlocked
         """
         available_towers = self._sensor.get_available_towers()
         if len(available_towers) == 0:
             return None
-        return available_towers[0]
+        for tower in available_towers:
+            if tower.color_name == brick.color_name:
+                return tower
+        return None 
     
     def available_brick(self, robot_name):
         """
@@ -128,9 +131,9 @@ class TaskManager:
         self._controller.move_to_pose(agent, way_points_brick[2], brick=brick_to_pick, task_manager=self, dt = dt)
         
         # search uncompleted and not locked tower
-        target_tower = self.search_uncomplete_tower()
+        target_tower = self.search_uncomplete_tower(brick_to_pick)
         while target_tower is None:
-            target_tower = self.search_uncomplete_tower()
+            target_tower = self.search_uncomplete_tower(brick_to_pick)
             print(f"{agent.name}: can't find available tower")
             sleep(dt*5)
         # try to lock the tower

@@ -3,9 +3,10 @@ import spatialgeometry as sg
 import numpy as np
 
 class Tower:
-    def __init__(self, base_pose: sm.SE3, max_height: int, name: str = 'Tower'):
+    def __init__(self, base_pose: sm.SE3, max_height: int, color_name: str, name: str = 'Tower'):
         self.name = name
         self.base_pose = base_pose
+        self.color_name = color_name.lower()
         self._current_logical_height = 0.0
         self.max_height = max_height
         self.bricks = []
@@ -60,7 +61,7 @@ class Brick:
         self.name = name
         self.start_pose = start_pose 
         self.scale = scale
-        self.color_name = color_name
+        self.color_name = color_name.lower()
         colors_dict = {"red":[1.0, 0.0, 0.0, 0.1], "green":[0.0, 1.0, 0.0, 0.1], "blue":[0.0, 0.0, 1.0, 0.1], "yellow":[1.0, 1.0, 0.0, 0.1]}
         self.color = colors_dict[self.color_name.lower()]
         self.obj = sg.Cuboid(scale=self.scale, pose=self.start_pose, color=self.color)

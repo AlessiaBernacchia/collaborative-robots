@@ -147,15 +147,15 @@ if __name__ == "__main__":
     robots = [panda_agent, panda_agent_2]
 
     # initialize bricks
-    brick_A = Brick(sm.SE3(0.0, 0.5, 0.15), color_name="Yellow")
+    brick_A = Brick(sm.SE3(0.0, 0.5, 0.15), color_name="Green")
     brick_B = Brick(sm.SE3(0.0, 0.5, 0.05), color_name="Red")
-    brick_C = Brick(sm.SE3(0.11, 0.5, 0.15))
-    brick_D = Brick(sm.SE3(0.11, 0.5, 0.05))
+    brick_C = Brick(sm.SE3(0.11, 0.5, 0.15), color_name="Blue")
+    brick_D = Brick(sm.SE3(0.11, 0.5, 0.05), color_name="Blue")
 
-    brick_E = Brick(sm.SE3(0.22, 0.5, 0.15))
-    brick_F = Brick(sm.SE3(0.22, 0.5, 0.05))
-    brick_G = Brick(sm.SE3(-0.11, 0.5, 0.15))
-    brick_H = Brick(sm.SE3(-0.11, 0.5, 0.05))
+    brick_E = Brick(sm.SE3(0.22, 0.5, 0.15), color_name="green")
+    brick_F = Brick(sm.SE3(0.22, 0.5, 0.05), color_name="green")
+    brick_G = Brick(sm.SE3(-0.11, 0.5, 0.15), color_name="Red")
+    brick_H = Brick(sm.SE3(-0.11, 0.5, 0.05), color_name="Blue")
     
 
     bricks = [brick_A, brick_B, brick_C, brick_D, brick_E, brick_F, brick_G, brick_H]
@@ -166,14 +166,15 @@ if __name__ == "__main__":
 
     # initialize the tower
     base_A = sm.SE3(0.0, 0.2, 0.05)
-    tower_A = Tower(base_pose=base_A, max_height=3)
+    tower_A = Tower(base_pose=base_A, max_height=3, color_name = "Blue")
+
     
     base_B = sm.SE3(0.0, -0.2, 0.05)
-    tower_B = Tower(base_pose=base_B, max_height=3)
-    
+    tower_B = Tower(base_pose=base_B, max_height=3, color_name = "Green")
+
     base_C = sm.SE3(0.0, 0.0, 0.05)
-    tower_C = Tower(base_pose=base_C, max_height=2)
-    
+    tower_C = Tower(base_pose=base_C, max_height=2, color_name = "Red")
+
     towers = [tower_A, tower_B, tower_C]
 
     # initialize the sensor
