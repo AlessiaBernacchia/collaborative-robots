@@ -215,6 +215,8 @@ if __name__ == "__main__":
                 tasks_completed += 1
             else:
                 time.sleep(0.5)
+            if tasks_completed == max_tasks:
+                controller.rest(robot, task_manager, dt=0.01)
     
     # Create two threads, one for each robot
     # Each robot will complete 4 bricks (8 total / 2 robots)

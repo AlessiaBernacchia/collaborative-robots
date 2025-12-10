@@ -43,6 +43,9 @@ class Robot_arm:
         """
         return self._busy
     
+    def rest_pos(self):
+        return self._robot.qr
+    
     @property 
     def distance(self):
         """

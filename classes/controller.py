@@ -72,7 +72,11 @@ class Controller:
 
         return [T_transfer, T_release, T_end]
 
-
+    def rest(self, robot,task_manager, dt):
+        rest_q = robot.rest_pos()
+        rest_pose = robot._robot.fkine(rest_q)
+        self.move_to_pose(robot, rest_pose,task_manager, dt=dt)
+        
     # Robot's movements
     def compute_qdot(self, robot: Robot_arm, target: sm.SE3):
         """

@@ -156,7 +156,8 @@ class TaskManager:
         self._controller.move_to_pose(agent, way_points[-1], task_manager=self, dt = dt)
         target_tower.unlock(agent.name)
         
-        self.__env.step(dt)
+        #if self.search_uncomplete_tower() is None or self.ask_free_bricks() is None:
+        #    self._controller.rest(agent, self, dt)
 
         
     def resolve_collision_precedence(self, agent: Robot_arm, agent_error: float):
