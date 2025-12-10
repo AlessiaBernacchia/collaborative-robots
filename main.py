@@ -7,15 +7,143 @@ import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 # from classes.sensor import *
 # from classes import *
-import threading
+
 import time
 import os
 
 PLOTS_DIR = './plots'
 
 # TASK INITIALIZATIONS
-def initialize_task_1():
-    pass
+def initialize_task_1() -> Tuple[List[Robot_arm], List[Brick], List[Tower]]:
+    """
+    materials occured for
+    task 1: one panda robot that build one single tower
+    
+    :return: three lists, one of the agents, one of the bricks in the environment and one for the towers to build
+    :rtype: Tuple[List[Robot_arm], List[Brick], List[Tower]]
+    """
+    # robot
+    panda_agent = Robot_arm("panda", sm.SE3.Rz(0), sm.SE3.Tx(-0.5))
+    panda_agent.set_position(-0.70, 0.0, 0.0)
+    panda_agent.modify_orientation_base()
+
+    robots = [panda_agent]
+
+    # bricks
+    brick_A = Brick(sm.SE3(0.0, 0.5, 0.15))
+    brick_B = Brick(sm.SE3(0.0, 0.5, 0.05))
+    brick_C = Brick(sm.SE3(0.11, 0.5, 0.15))
+    brick_D = Brick(sm.SE3(0.11, 0.5, 0.05))
+
+    brick_E = Brick(sm.SE3(0.22, 0.5, 0.15))
+    brick_F = Brick(sm.SE3(0.22, 0.5, 0.05))
+    brick_G = Brick(sm.SE3(-0.11, 0.5, 0.15))
+    brick_H = Brick(sm.SE3(-0.11, 0.5, 0.05))
+
+    bricks = [brick_A, brick_B, brick_C, brick_D, brick_E, brick_F, brick_G, brick_H]
+
+    # towers
+    base_A = sm.SE3(0.0, 0.2, 0.05)
+    tower_A = Tower(base_pose=base_A, max_height=6)
+    
+    towers = [tower_A]
+
+    return robots, bricks, towers
+
+def initialize_task_2() -> Tuple[List[Robot_arm], List[Brick], List[Tower]]:
+    """
+    materials occured for
+    task 2: two panda robots that build one single tower
+    
+    :return: three lists, one of the agents, one of the bricks in the environment and one for the towers to build
+    :rtype: Tuple[List[Robot_arm], List[Brick], List[Tower]]
+    """
+    # robot
+    panda_agent = Robot_arm("panda", sm.SE3.Rz(0), sm.SE3.Tx(-0.5))
+    panda_agent.set_position(-0.70, 0.0, 0.0)
+    panda_agent.modify_orientation_base()
+
+    panda_agent_2 = Robot_arm("panda_2", sm.SE3.Rz(np.pi), sm.SE3.Tx(0.5))
+    panda_agent_2.set_position(0.70, 0.0, 0.0)
+    panda_agent_2.modify_orientation_base()
+
+    robots = [panda_agent, panda_agent_2]
+
+    # bricks
+    brick_A = Brick(sm.SE3(0.0, 0.5, 0.15))
+    brick_B = Brick(sm.SE3(0.0, 0.5, 0.05))
+    brick_C = Brick(sm.SE3(0.11, 0.5, 0.15))
+    brick_D = Brick(sm.SE3(0.11, 0.5, 0.05))
+
+    brick_E = Brick(sm.SE3(0.22, 0.5, 0.15))
+    brick_F = Brick(sm.SE3(0.22, 0.5, 0.05))
+    brick_G = Brick(sm.SE3(-0.11, 0.5, 0.15))
+    brick_H = Brick(sm.SE3(-0.11, 0.5, 0.05))
+
+    bricks = [brick_A, brick_B, brick_C, brick_D, brick_E, brick_F, brick_G, brick_H]
+
+    # towers
+    base_A = sm.SE3(0.0, 0.2, 0.05)
+    tower_A = Tower(base_pose=base_A, max_height=6)
+    
+    towers = [tower_A]
+
+    return robots, bricks, towers
+
+def initialize_task_3() -> Tuple[List[Robot_arm], List[Brick], List[Tower]]:
+    """
+    materials occured for
+    task 1: two panda robot that build a wall
+    
+    :return: three lists, one of the agents, one of the bricks in the environment and one for the towers to build
+    :rtype: Tuple[List[Robot_arm], List[Brick], List[Tower]]
+    """
+    # robot
+    panda_agent = Robot_arm("panda", sm.SE3.Rz(0), sm.SE3.Tx(-0.5))
+    panda_agent.set_position(-0.70, 0.0, 0.0)
+    panda_agent.modify_orientation_base()
+
+    panda_agent_2 = Robot_arm("panda_2", sm.SE3.Rz(np.pi), sm.SE3.Tx(0.5))
+    panda_agent_2.set_position(0.70, 0.0, 0.0)
+    panda_agent_2.modify_orientation_base()
+
+    robots = [panda_agent, panda_agent_2]
+
+    # bricks
+    brick_A1 = Brick(sm.SE3(0.0, 0.5, 0.25))
+    brick_A2 = Brick(sm.SE3(0.0, 0.5, 0.15))
+    brick_A3 = Brick(sm.SE3(0.0, 0.5, 0.05))
+
+    brick_B1 = Brick(sm.SE3(0.11, 0.5, 0.25))
+    brick_B2 = Brick(sm.SE3(0.11, 0.5, 0.15))
+    brick_B3 = Brick(sm.SE3(0.11, 0.5, 0.05))
+
+    brick_C1 = Brick(sm.SE3(0.22, 0.5, 0.25))
+    brick_C2 = Brick(sm.SE3(0.22, 0.5, 0.15))
+    brick_C3 = Brick(sm.SE3(0.22, 0.5, 0.05))
+
+    brick_D1 = Brick(sm.SE3(-0.11, 0.5, 0.25))
+    brick_D2 = Brick(sm.SE3(-0.11, 0.5, 0.15))
+    brick_D3 = Brick(sm.SE3(-0.11, 0.5, 0.05))
+
+    bricks = [brick_A1, brick_A2, brick_A3, brick_B1, brick_B2, brick_B3,
+              brick_C1, brick_C2, brick_C3, brick_D1, brick_D2, brick_D3]
+
+    # towers
+    base_A = sm.SE3(0.0, 0.2, 0.05)
+    tower_A = Tower(base_pose=base_A, max_height=4)
+    
+    base_B = sm.SE3(0.0, -0.2, 0.05)
+    tower_B = Tower(base_pose=base_B, max_height=4)
+    
+    base_C = sm.SE3(0.0, 0.0, 0.05)
+    tower_C = Tower(base_pose=base_C, max_height=4)
+    
+    towers = [tower_A, tower_B, tower_C]
+
+    return robots, bricks, towers
+
+
 def save_image(fig, file_name, dir_path=PLOTS_DIR):
     """
     Save the image in the given path, with the given name
@@ -137,46 +265,15 @@ if __name__ == "__main__":
     env = swift.Swift()
     env.launch(realtime=True, comms="rtc", browser="browser")
     
-    # initialize the robot arm
-    panda_agent = Robot_arm("panda", sm.SE3.Rz(0), sm.SE3.Tx(-0.5))
-    panda_agent_2 = Robot_arm("panda_2", sm.SE3.Rz(np.pi), sm.SE3.Tx(0.5))
-    panda_agent.set_position(-0.70, 0.0, 0.0)
-    panda_agent_2.set_position(0.70, 0.0, 0.0)
-    panda_agent.modify_orientation_base()
-    panda_agent_2.modify_orientation_base()
-    panda_agent.register(env)
-    panda_agent_2.register(env)
+    # initialize the task
+    robots, bricks, towers = initialize_task_3()
 
-    robots = [panda_agent]#, panda_agent_2]
+    # add elements to the environment
+    for r in robots:
+        r.register(env)
 
-    # initialize bricks
-    brick_A = Brick(sm.SE3(0.0, 0.5, 0.15))
-    brick_B = Brick(sm.SE3(0.0, 0.5, 0.05))
-    brick_C = Brick(sm.SE3(0.11, 0.5, 0.15))
-    brick_D = Brick(sm.SE3(0.11, 0.5, 0.05))
-
-    brick_E = Brick(sm.SE3(0.22, 0.5, 0.15))
-    brick_F = Brick(sm.SE3(0.22, 0.5, 0.05))
-    brick_G = Brick(sm.SE3(-0.11, 0.5, 0.15))
-    brick_H = Brick(sm.SE3(-0.11, 0.5, 0.05))
-
-    bricks = [brick_A, brick_B, brick_C, brick_D, brick_E, brick_F, brick_G, brick_H]
-
-    # add bricks to the environment
     for b in bricks:
         env.add(b.obj)
-
-    # initialize the tower
-    base_A = sm.SE3(0.0, 0.2, 0.05)
-    tower_A = Tower(base_pose=base_A, max_height=3)
-    
-    base_B = sm.SE3(0.0, -0.2, 0.05)
-    tower_B = Tower(base_pose=base_B, max_height=3)
-    
-    base_C = sm.SE3(0.0, 0.0, 0.05)
-    tower_C = Tower(base_pose=base_C, max_height=2)
-    
-    towers = [tower_A, tower_B, tower_C]
 
     # initialize the sensor
     sensor = Sensor(env, bricks=bricks, towers=towers, robots=robots)
@@ -184,94 +281,13 @@ if __name__ == "__main__":
     controller = Controller(env) 
     # initialize the task manager
     task_manager = TaskManager(env, sensor, robots=robots, controller=controller)
-    
-    
-    # start simulation by iterating each brick in the list
-    # for _ in range(len(bricks)):
-    #     panda_agent.start_task()
-    #     panda_agent_2.start_task()
-    #     controller.pick_and_place(panda_agent, sensor)
-    #     controller.pick_and_place(panda_agent_2, sensor)
-    #     panda_agent.task_completed()
-    #     panda_agent_2.task_completed()        
 
-    # panda_agent.plot_performance_metrics()
-
-    # panda_agent.plot_3d_trajectory_views()
-    # panda_agent.plot_height_over_time()
-
-    def robot_worker(robot, controller, sensor, max_tasks):
-        """
-        Worker function that executes tasks for a single robot.
-        Each robot will try to complete max_tasks bricks.
-        """
-        tasks_completed = 0
-        
-        while tasks_completed < max_tasks:
-            robot.start_task()
-            result = task_manager.place_one_brick(robot, dt=0.01)
-            # result = controller.pick_and_place(robot, sensor)
-            robot.task_completed()
-            
-            if result is None:  # Task completed successfully
-                tasks_completed += 1
-            else:
-                time.sleep(0.5)
-            if tasks_completed == max_tasks:
-                controller.rest(robot, task_manager, dt=0.01)
-    
-    # Create two threads, one for each robot
-    # Each robot will complete 4 bricks (8 total / 2 robots)
     start_time = time.time()
-    thread1 = threading.Thread(
-        target=robot_worker,
-        args=(panda_agent, controller, sensor, 4)
-    )
-    thread2 = threading.Thread(
-        target=robot_worker,
-        args=(panda_agent_2, controller, sensor, 4)
-    )
-    
-    # Start both robots simultaneously
-    thread1.start()
-    #thread2.start()
-    
-    # Wait for both robots to complete their tasks
-    thread1.join()
-    #thread2.join()
-    
+    task_manager.start()
     end_time=time.time()
-    
+    print(f'global time: {end_time-start_time}')
 
-    global_range = global_limits(robots) 
+
+    #global_range = global_limits(robots) 
     # fig = plot_all_metrics_combined(panda_agent, panda_agent_2, global_range, start_time, end_time, figsize=(17,20))
     # save_image(fig, 'plot_metrics_and_trajectory.png')
-
-
-
-            
-
-
-def resolve_collision_precedence(self, agent: Robot_arm, agent_error: float):
-        if self._sensor.check_collision():
-            ROBOT_WITH_PRECEDENCE_NAME = self._robots[0].name
-
-            robot_target_distances = list(self._sensor.get_current_robot_target_distances())
-        
-            idx_agent = get_index_by_name(self._robots, agent.name)
-            # robot_distance = robot_target_distances.pop(idx)
-            future_robot_distance = agent_error
-            other_robots_distances = [d for i, d in enumerate(robot_target_distances) if i != idx_agent]
-            min_other_distance = min(other_robots_distances)
-
-            # can move only if 
-            # it is the nearest to the target pose 
-            if agent.name == ROBOT_WITH_PRECEDENCE_NAME:
-                # if more robots has the same error, it has the precedence
-                can_move = future_robot_distance <= min_other_distance
-            else:
-                can_move = future_robot_distance < min_other_distance
-
-            return can_move
-        
-        return True

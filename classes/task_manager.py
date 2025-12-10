@@ -7,11 +7,15 @@ import spatialgeometry as sg
 
 import numpy as np
 import roboticstoolbox as rtb
+import threading
 
 from classes.robot import Robot_arm
 from classes.objects import Tower, Brick
 from classes.sensor import Sensor
 from classes.controller import Controller
+
+# higher it is, higher the velocity of the robots
+DT = 0.05
 
 def get_index_by_name(obj_list, target_name):
     """
@@ -35,26 +39,25 @@ class TaskManager:
         self._controller = controller
     
     # general Sensor's requests
-
-    def ask_free_bricks(self):# -> Brick:
+    def ask_free_bricks(self) -> List[Brick]:
         """
         ask to the Sensor class a Brick free to pick
         """
         return self._sensor.get_free_bricks()
     
-    def ask_available_bricks(self):# -> Brick:
+    def ask_available_bricks(self) -> List[Brick]:
         """
         ask to the Sensor class a available Brick to pick
         """
         return self._sensor.get_available_bricks()
     
-    def ask_towers(self):
+    def ask_towers(self) -> List[Tower]:
         """
         ask to the Sensor class the towers
         """
         return self._sensor.get_towers()
 
-    def search_uncomplete_tower(self):
+    def search_uncomplete_tower(self) -> List[Tower] | None:
         """
         search between the towers in the environment one that is incomplete and unlocked
         """
@@ -63,7 +66,7 @@ class TaskManager:
             return None
         return available_towers[0]
     
-    def available_brick(self, robot_name):
+    def available_brick(self, robot_name) -> Brick | None:
         """
         return a free and unlocked brick
         """
@@ -78,8 +81,10 @@ class TaskManager:
             
         return free_bricks[0]
         
+
+        
     # internal methods
-    def select_free_agent(self):
+    def select_free_agent(self) -> Robot_arm | None:
         """
         select a robot not busy to assign a task
         """
@@ -87,6 +92,35 @@ class TaskManager:
             if not r.is_busy():
                 return r
             return None
+
+    def resolve_collision_precedence(self, agent: Robot_arm, agent_error: float):
+        """
+        Return True if the agent can move safely without causing any collision
+        otherwise it return False, causing the retrocession of the agent
+        """
+
+        if self._sensor.check_collision(agent):
+            ROBOT_WITH_PRECEDENCE_NAME = self._robots[0].name
+
+            robot_target_distances = list(self._sensor.get_current_robot_target_distances())
+        
+            idx_agent = get_index_by_name(self._robots, agent.name)
+            future_robot_distance = agent_error
+            other_robots_distances = [d for i, d in enumerate(robot_target_distances) if i != idx_agent]
+            min_other_distance = min(other_robots_distances)
+
+            # can move only if 
+            # it is the nearest to the target pose 
+            if agent.name == ROBOT_WITH_PRECEDENCE_NAME:
+                # if more robots has the same error, it has the precedence
+                can_move = future_robot_distance <= min_other_distance
+            else:
+                # has the precedence only if it is the nearest to the target pose
+                can_move = future_robot_distance < min_other_distance
+            return can_move
+        
+        # no collision -> safe
+        return True
 
     def place_one_brick(self, agent: Robot_arm, dt=0.01):
         """
@@ -161,70 +195,45 @@ class TaskManager:
         #    self._controller.rest(agent, self, dt)
 
         
-    def resolve_collision_precedence(self, agent: Robot_arm, agent_error: float):
-        """
-        Docstring for resolve_collision_precedence
-        
-        :param self: Description
-        :param agent: Description
-        :type agent: Robot_arm
-        """
-        if self._sensor.check_collision(agent):
-            ROBOT_WITH_PRECEDENCE_NAME = self._robots[0].name
+    
 
-            robot_target_distances = list(self._sensor.get_current_robot_target_distances())
-            # # robot started now
-            # if all(robot_target_distances) == np.inf:
-            #     if agent.name == ROBOT_WITH_PRECEDENCE_NAME:
-            #         return True
-            #     return False
+    # parallel methods executions
+    def robot_worker(self, robot, max_tasks):
+        """
+        Worker function that executes tasks for a single robot.
+        Each robot will try to complete max_tasks bricks.
+        """
+        tasks_completed = 0
+        
+        while tasks_completed < max_tasks:
+            robot.start_task()
+            result = self.place_one_brick(robot, dt=DT)
+            robot.task_completed()
             
-            # if agent.name == ROBOT_WITH_PRECEDENCE_NAME:
-            #    return True
-            #return False
-        
-            idx_agent = get_index_by_name(self._robots, agent.name)
-            # robot_distance = robot_target_distances.pop(idx_agent)
-            future_robot_distance = agent_error
-            other_robots_distances = [d for i, d in enumerate(robot_target_distances) if i != idx_agent]
-            min_other_distance = min(other_robots_distances)
-            #print(f"future_robot_distance: {future_robot_distance}")
-            #print(f"other_robots_distances: {other_robots_distances}")
-            #print(f"min_other_distance: {min_other_distance}")
-            #print(agent.name)
-
-            # can move only if 
-            # it is the nearest to the target pose 
-            if agent.name == ROBOT_WITH_PRECEDENCE_NAME:
-                # if more robots has the same error, it has the precedence
-                can_move = future_robot_distance <= min_other_distance
+            if result is None:  # Task completed successfully
+                tasks_completed += 1
             else:
-                can_move = future_robot_distance < min_other_distance
-
-            return can_move
+                sleep(DT*30)
+            # finish task
+            if tasks_completed == max_tasks:
+                self._controller.rest(robot, self, dt=DT)
+    
+    def start(self):        
+        # Create two threads, one for each robot
+        # Each robot will complete 4 bricks (8 total / 2 robots)
+        threads = [
+            threading.Thread(
+                target=self.robot_worker,
+                args=(agent, 4)
+            )
+            for agent in self._robots]
         
-        return True
-
-    
-    def decide_and_act(self):
-        if self._sensor.check_collision():
-            dist_1, dist_2 = self._sensor.robot_dist()
-            robot_1, robot_2 = self._sensor.get_robots(self)
-            if dist_1 >= dist_2:
-                pass
-            if dist_1 < dist_2:
-                pass
-
-# # TODO: in future for task manager
-# def execute_stacking_sequence(self, robot, brick, target_pose):
-#     # calculate complete path
-#     sequence_of_poses = self._calculate_full_path(brick.start_pose, target_pose)
-#     # avoid collisions
-#     for pose in sequence_of_poses:
-#         if self.is_path_safe(robot, pose):
-#             robot.move_to_pose(pose)
-#         else:
-#             print(f"{robot.name}: STOPPED MOVEMENT TO AVOID COLLISION")
-#             return
-    
-#     robot.is_busy = False
+        # Start both robots simultaneously
+        for t in threads:
+            t.start()
+        
+        # Wait for both robots to complete their tasks
+        for t in threads:
+            t.join()
+        
+        
