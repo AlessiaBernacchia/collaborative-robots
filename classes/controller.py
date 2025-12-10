@@ -72,12 +72,16 @@ class Controller:
 
         return [T_transfer, T_release, T_end]
 
-    def rest(self, robot,task_manager, dt):
-        rest_q = robot.rest_pos()
+    
+    # Robot's movements
+    def rest(self, robot:Robot_arm, task_manager, dt=0.01):
+        """
+        move the robot to the rest position
+        """
+        rest_q = robot.rest_qr()
         rest_pose = robot._robot.fkine(rest_q)
         self.move_to_pose(robot, rest_pose,task_manager, dt=dt)
         
-    # Robot's movements
     def compute_qdot(self, robot: Robot_arm, target: sm.SE3):
         """
         compute the position of the joints
@@ -115,34 +119,24 @@ class Controller:
         precedence at every step.
         """
         error = np.inf 
-        # while np.linalg.norm(error) >= tol:
+        # move until is close to the target
         while agent.distance >= tol:
+            # simulate next movement to reach the target point
             qdot_initial, error, cond_number = self.compute_qdot(agent, target_pose)
             error_norm = np.linalg.norm(error)
+            # ask to task maanger if he can move safely
             can_move = task_manager.resolve_collision_precedence(agent, error_norm)
-            #print(f'{agent.name}: can I move? {can_move}')
+            # select the q for the movement
             qdot_final = qdot_initial
-
             if not can_move:
                 qdot_avoidance, error, _ = self.compute_qdot(agent, target_pose@agent._safe_transition)
                 qdot_final = qdot_avoidance
-
-            # if self._sensor.check_collision():
-                
-            #     # TODO: ask to task manager if move or not 
-            #     # (the task manager checks distance robot-target, the nearest moves)
-            #     if agent.name == "panda":
-            #         _, other_error = self._sensor.robot_distance()
-            #         if np.linalg.norm(error) > other_error:
-            #             qdot, error, cond_number = self.compute_qdot(agent, target_pose*sm.SE3.Tx(-0.3))
-            #     else:
-            #         other_error, _ = self._sensor.robot_distance()
-            #         if np.linalg.norm(error) > other_error:
-            #             qdot, error, cond_number = self.compute_qdot(agent, target_pose*sm.SE3.Tx(0.3))
+            # move
             agent.apply_velocity_cmd(qdot_final, cond_number, error)
-
+            
             if brick is not None:
                 self.drag_brick(brick, agent._robot)
 
             self.__env.step(dt)
+            
         agent.reset_distance()

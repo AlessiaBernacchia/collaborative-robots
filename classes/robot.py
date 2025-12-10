@@ -43,7 +43,10 @@ class Robot_arm:
         """
         return self._busy
     
-    def rest_pos(self):
+    def rest_qr(self):
+        """
+        return the joint positions of the rest position
+        """
         return self._robot.qr
     
     @property 
