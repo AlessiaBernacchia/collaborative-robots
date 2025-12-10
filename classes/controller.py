@@ -107,7 +107,7 @@ class Controller:
         pos = robot.fkine(robot.q)
         brick.update_position(pos)
     
-    def move_to_pose(self, agent: Robot_arm, target_pose: sm.SE3, task_manager, brick: Brick = None, dt: float = 0.01, tol: float = 0.001):
+    def move_to_pose(self, agent: Robot_arm, target_pose: sm.SE3, task_manager, brick: Brick = None, dt: float = 0.01, tol: float = 0.001, waiting_t: float = 2.0):
         """
         moves the robot end-effector to a target pose,
         if brick is specified, the robot drags it
@@ -122,23 +122,18 @@ class Controller:
             can_move = task_manager.resolve_collision_precedence(agent, error_norm)
             #print(f'{agent.name}: can I move? {can_move}')
             qdot_final = qdot_initial
+            waiting_counter = 0
 
-            if not can_move:
-                qdot_avoidance, error, _ = self.compute_qdot(agent, target_pose@agent._safe_transition)
-                qdot_final = qdot_avoidance
-
-            # if self._sensor.check_collision():
+            while not can_move and waiting_counter <= waiting_t:
+                qdot_avoidance, error_avoidance, cond_number_avoidance = self.compute_qdot(agent, target_pose@agent._safe_transition)
+                agent.apply_velocity_cmd(qdot_avoidance, cond_number_avoidance, error_avoidance)
                 
-            #     # TODO: ask to task manager if move or not 
-            #     # (the task manager checks distance robot-target, the nearest moves)
-            #     if agent.name == "panda":
-            #         _, other_error = self._sensor.robot_distance()
-            #         if np.linalg.norm(error) > other_error:
-            #             qdot, error, cond_number = self.compute_qdot(agent, target_pose*sm.SE3.Tx(-0.3))
-            #     else:
-            #         other_error, _ = self._sensor.robot_distance()
-            #         if np.linalg.norm(error) > other_error:
-            #             qdot, error, cond_number = self.compute_qdot(agent, target_pose*sm.SE3.Tx(0.3))
+                if brick is not None:
+                    self.drag_brick(brick, agent._robot)
+                    
+                self.__env.step(dt)
+                waiting_counter += dt
+            
             agent.apply_velocity_cmd(qdot_final, cond_number, error)
 
             if brick is not None:

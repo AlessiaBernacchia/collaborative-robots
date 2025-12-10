@@ -135,8 +135,8 @@ if __name__ == "__main__":
     env.launch(realtime=True, comms="rtc", browser="browser")
     
     # initialize the robot arm
-    panda_agent = Robot_arm("panda", sm.SE3.Rz(0), sm.SE3.Tx(-0.5))
-    panda_agent_2 = Robot_arm("panda_2", sm.SE3.Rz(np.pi), sm.SE3.Tx(0.5))
+    panda_agent = Robot_arm("panda", sm.SE3.Rz(0), sm.SE3.Tx(-0.2))
+    panda_agent_2 = Robot_arm("panda_2", sm.SE3.Rz(np.pi), sm.SE3.Tx(0.2))
     panda_agent.set_position(-0.70, 0.0, 0.0)
     panda_agent_2.set_position(0.70, 0.0, 0.0)
     panda_agent.modify_orientation_base()
