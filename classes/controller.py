@@ -135,6 +135,8 @@ class Controller:
                 self.__env.step(dt)
                 waiting_counter += dt
             
+            # reset the distance and start next iteration if it entered 
+            # in the avoidance procedure
             if waiting_counter >= waiting_t:
                 agent.reset_distance()
                 continue
