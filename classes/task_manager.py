@@ -1,6 +1,6 @@
 from typing import List, Tuple
 
-from time import sleep
+from time import sleep, time
 import swift
 import spatialmath as sm
 import spatialgeometry as sg
@@ -203,6 +203,18 @@ class TaskManager:
             else:
                 can_move = future_robot_distance < min_other_distance
 
+            current_time = time()
+            distance_between_robots = self._sensor.get_distance_between_robots()
+            
+            for robot in self._robots:
+                had_precedence = (robot.name == agent.name and can_move)
+                robot.record_collision_event(
+                    timestamp=current_time,
+                    position=robot.end_factor_position(),
+                    distance=distance_between_robots,
+                    had_precedence=had_precedence
+                )
+                
             return can_move
         
         return True

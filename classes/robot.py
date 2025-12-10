@@ -35,6 +35,9 @@ class Robot_arm:
         self._tasks_t = [] 
         self._start_time = 0
 
+        #tracking collision
+        self._collision = []
+
     def is_busy(self) -> bool:
         """
         return the state of the robot,
@@ -161,6 +164,32 @@ class Robot_arm:
             end_time_abs = self._time_data[-1] if self._time_data else start_time_abs
 
         return start_time_abs, end_time_abs
+    
+    def record_collision_event(self, timestamp: float, position: np.ndarray, distance: float, had_precedence: bool):
+        """
+        Records a near-collision event with timestamp and position.
+        
+        Args:
+            timestamp: Absolute time when the collision risk occurred
+            position: End-effector position at the collision event
+            distance: Distance between robots at collision
+            had_precedence: Whether this robot had precedence (could move)
+        """
+        self._collision.append({
+            'timestamp': timestamp,
+            'position': position.copy(),
+            'distance': distance,
+            'had_precedence': had_precedence
+        })
+
+    def get_collision_events(self):
+        """
+        Returns the list of recorded collision events.
+        
+        Returns:
+            list: List of collision event dictionaries
+        """
+        return self._collision
     
 
     def get_trajectory(self):
@@ -483,3 +512,86 @@ class Robot_arm:
         if ax is None:
             plt.tight_layout()
             plt.show()
+
+    def plot_collision_markers_3d(self, axes, start_time=None, end_time=None, 
+                               marker_color='red', marker_size=100, f=14):
+        """
+        Adds collision event markers to existing 3D trajectory views.
+        
+        Args:
+            axes: List of 3 axes [top_view, side_view, front_view]
+            start_time: Filter events after this time
+            end_time: Filter events before this time
+            marker_color: Color for collision markers
+            marker_size: Size of the markers
+        """
+        if len(self._collision) == 0:
+            return
+        
+        # Filter events by time window
+        filtered_events = self._collision
+        if start_time is not None or end_time is not None:
+            filtered_events = [
+                e for e in self._collision
+                if (start_time is None or e['timestamp'] >= start_time) and
+                (end_time is None or e['timestamp'] <= end_time)
+            ]
+        
+        if len(filtered_events) == 0:
+            return
+        
+        # Extract positions
+        positions = np.array([e['position'] for e in filtered_events])
+        
+        # Plot on each view
+        ax_top, ax_side, ax_front = axes
+        
+        # Top view (XY)
+        ax_top.scatter(positions[:, 0], positions[:, 1], 
+                    c=marker_color, s=marker_size, marker='x', 
+                    alpha=0.7, linewidths=2, zorder=10,
+                    label=f'{self.name} Near-Collision')
+        
+        # Side view (XZ)
+        ax_side.scatter(positions[:, 0], positions[:, 2], 
+                        c=marker_color, s=marker_size, marker='x', 
+                        alpha=0.7, linewidths=2, zorder=10)
+        
+        # Front view (YZ)
+        ax_front.scatter(positions[:, 1], positions[:, 2], 
+                        c=marker_color, s=marker_size, marker='x', 
+                        alpha=0.7, linewidths=2, zorder=10)
+
+    def plot_collision_markers_time(self, ax, start_time=None, end_time=None,
+                                    marker_color='red', alpha=0.3):
+        """
+        Adds vertical lines at collision events on time-based plots.
+        
+        Args:
+            ax: Matplotlib axis to add markers to
+            start_time: Reference start time for relative plotting
+            end_time: Filter events before this time
+            marker_color: Color for the vertical lines
+            alpha: Transparency of the lines
+        """
+        if len(self._collision) == 0:
+            return
+        
+        # Use first collision event time as reference if start_time not provided
+        if start_time is None:
+            start_time = self._collision[0]['timestamp'] if self._collision else 0
+        
+        # Filter and convert to relative time
+        relative_times = []
+        for e in self._collision:
+            if end_time is None or e['timestamp'] <= end_time:
+                relative_times.append(e['timestamp'] - start_time)
+        
+        # Plot vertical lines
+        has_label = False
+        for t in relative_times:
+            if t >= 0:  # Only plot if within the time window
+                label = f'{self.name} Near-Collision' if not has_label else None
+                ax.axvline(t, linestyle=':', color=marker_color, alpha=alpha, 
+                        linewidth=2, label=label)
+                has_label = True
