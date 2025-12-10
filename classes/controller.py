@@ -122,8 +122,9 @@ class Controller:
             can_move = task_manager.resolve_collision_precedence(agent, error_norm)
             #print(f'{agent.name}: can I move? {can_move}')
             qdot_final = qdot_initial
+            
+            # if it cannot move, the robot will stay away from the danger area.
             waiting_counter = 0
-
             while not can_move and waiting_counter <= waiting_t:
                 qdot_avoidance, error_avoidance, cond_number_avoidance = self.compute_qdot(agent, target_pose@agent._safe_transition)
                 agent.apply_velocity_cmd(qdot_avoidance, cond_number_avoidance, error_avoidance)
