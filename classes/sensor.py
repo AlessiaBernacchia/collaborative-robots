@@ -57,21 +57,28 @@ class Sensor:
         # for robot in self.robots:
         #     robot.current_pose = robot._robot.fkine(robot.q)
 
-    def check_collision(self):
+    def check_collision(self, agent:Robot_arm, safe_dist: float = 0.2):
         """
         check if the two robots' end-factors are in a 
         dangerous distance between each others
         """
-        distance = np.linalg.norm(self.robots[0].end_factor_position()-self.robots[1].end_factor_position())
-        if distance <= 0.2:
-            return True
-        return False
+        if len(self.robots) == 1:
+            return False
+        # verify the agent's end factor is not in collision with others
+        for r in self.robots:
+            if r.name != agent.name:
+                distance = np.linalg.norm(agent.end_factor_position()-r.end_factor_position())
+                if distance <= safe_dist:
+                    return True
+            return False
+        
     
     def get_current_robot_target_distances(self):
         """
         Return the distance between the end factors and them target poses
         """
-        return self.robots[0].distance, self.robots[1].distance
+        return [r.distance for r in self.robots]
+        #return self.robots[0].distance, self.robots[1].distance
 
         
     

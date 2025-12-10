@@ -13,6 +13,9 @@ import os
 
 PLOTS_DIR = './plots'
 
+# TASK INITIALIZATIONS
+def initialize_task_1():
+    pass
 def save_image(fig, file_name, dir_path=PLOTS_DIR):
     """
     Save the image in the given path, with the given name
@@ -130,7 +133,7 @@ def plot_all_metrics_combined(panda_agent_1, panda_agent_2, global_limits_3d=Non
     return fig
 
 if __name__ == "__main__":
-    #create the swift enviroment
+    # create the swift enviroment
     env = swift.Swift()
     env.launch(realtime=True, comms="rtc", browser="browser")
     
@@ -144,7 +147,7 @@ if __name__ == "__main__":
     panda_agent.register(env)
     panda_agent_2.register(env)
 
-    robots = [panda_agent, panda_agent_2]
+    robots = [panda_agent]#, panda_agent_2]
 
     # initialize bricks
     brick_A = Brick(sm.SE3(0.0, 0.5, 0.15))
@@ -156,7 +159,6 @@ if __name__ == "__main__":
     brick_F = Brick(sm.SE3(0.22, 0.5, 0.05))
     brick_G = Brick(sm.SE3(-0.11, 0.5, 0.15))
     brick_H = Brick(sm.SE3(-0.11, 0.5, 0.05))
-    
 
     bricks = [brick_A, brick_B, brick_C, brick_D, brick_E, brick_F, brick_G, brick_H]
 
@@ -232,19 +234,44 @@ if __name__ == "__main__":
     
     # Start both robots simultaneously
     thread1.start()
-    thread2.start()
+    #thread2.start()
     
     # Wait for both robots to complete their tasks
     thread1.join()
-    thread2.join()
+    #thread2.join()
     
     end_time=time.time()
     
 
     global_range = global_limits(robots) 
-    fig = plot_all_metrics_combined(panda_agent, panda_agent_2, global_range, start_time, end_time, figsize=(17,20))
+    # fig = plot_all_metrics_combined(panda_agent, panda_agent_2, global_range, start_time, end_time, figsize=(17,20))
     # save_image(fig, 'plot_metrics_and_trajectory.png')
 
 
 
             
+
+
+def resolve_collision_precedence(self, agent: Robot_arm, agent_error: float):
+        if self._sensor.check_collision():
+            ROBOT_WITH_PRECEDENCE_NAME = self._robots[0].name
+
+            robot_target_distances = list(self._sensor.get_current_robot_target_distances())
+        
+            idx_agent = get_index_by_name(self._robots, agent.name)
+            # robot_distance = robot_target_distances.pop(idx)
+            future_robot_distance = agent_error
+            other_robots_distances = [d for i, d in enumerate(robot_target_distances) if i != idx_agent]
+            min_other_distance = min(other_robots_distances)
+
+            # can move only if 
+            # it is the nearest to the target pose 
+            if agent.name == ROBOT_WITH_PRECEDENCE_NAME:
+                # if more robots has the same error, it has the precedence
+                can_move = future_robot_distance <= min_other_distance
+            else:
+                can_move = future_robot_distance < min_other_distance
+
+            return can_move
+        
+        return True
