@@ -22,6 +22,12 @@ class Sensor:
         """
         return [brick for brick in self.bricks if not brick.placed]
     
+    def get_available_bricks(self) -> list[Brick]:
+        """
+        return the list of available free bricks in the environment that can be picked
+        """
+        return [brick for brick in self.bricks if not brick.placed and not brick.lock]
+    
     def get_towers(self) -> list[Tower]:
         """
         return the list of towers in the environment
@@ -33,6 +39,12 @@ class Sensor:
         return the list of incomplete towers in the environment
         """
         return [tower for tower in self.towers if not tower.is_complete()]
+    
+    def get_available_towers(self) -> list[Tower]:
+        """
+        return the list of incomplete towers in the environment
+        """
+        return [tower for tower in self.towers if not tower.is_complete() and not tower.lock]
     
     def update(self):
         """

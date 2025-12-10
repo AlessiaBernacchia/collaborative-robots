@@ -156,6 +156,7 @@ if __name__ == "__main__":
     brick_F = Brick(sm.SE3(0.22, 0.5, 0.05))
     brick_G = Brick(sm.SE3(-0.11, 0.5, 0.15))
     brick_H = Brick(sm.SE3(-0.11, 0.5, 0.05))
+    
 
     bricks = [brick_A, brick_B, brick_C, brick_D, brick_E, brick_F, brick_G, brick_H]
 
@@ -165,12 +166,15 @@ if __name__ == "__main__":
 
     # initialize the tower
     base_A = sm.SE3(0.0, 0.2, 0.05)
-    tower_A = Tower(base_pose=base_A, max_height=4)
+    tower_A = Tower(base_pose=base_A, max_height=3)
     
     base_B = sm.SE3(0.0, -0.2, 0.05)
-    tower_B = Tower(base_pose=base_B, max_height=4)
+    tower_B = Tower(base_pose=base_B, max_height=3)
     
-    towers = [tower_A, tower_B]
+    base_C = sm.SE3(0.0, 0.0, 0.05)
+    tower_C = Tower(base_pose=base_C, max_height=2)
+    
+    towers = [tower_A, tower_B, tower_C]
 
     # initialize the sensor
     sensor = Sensor(env, bricks=bricks, towers=towers, robots=robots)
@@ -203,7 +207,7 @@ if __name__ == "__main__":
         
         while tasks_completed < max_tasks:
             robot.start_task()
-            result = task_manager.place_one_brick(robot)
+            result = task_manager.place_one_brick(robot, dt=0.01)
             # result = controller.pick_and_place(robot, sensor)
             robot.task_completed()
             

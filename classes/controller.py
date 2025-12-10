@@ -39,7 +39,7 @@ class Controller:
         self.max_safe_height = MAX_SAFE_LIFT_HEIGHT
         self.gain = 1.5    
     
-    def generate_path_points(self, brick_to_pick: Brick | None, target_tower: Tower | None):
+    def generate_path_points(self, brick_to_pick: Brick | None, target_tower: Tower | None = None):
         """
         returns a list of points that define the safe path to do
         """
@@ -49,19 +49,20 @@ class Controller:
             new_T.t[2] = height
             return new_T
 
-        if not brick_to_pick or not target_tower:
-            print(f"Controller: resources or target are missing")
+        if not brick_to_pick:
+            print(f"Controller: resources are missing")
             return None
 
+        if not target_tower:
+            # 1. pick the brick
+            T_pick        = sm.SE3(brick_to_pick.pose())
+            # 0. safe pick pose
+            T_pick_safe   = set_global_height(T_pick, self.max_safe_height)
+            # 2. go up until safe height
+            T_lift        = set_global_height(T_pick, self.max_safe_height)
+            return [T_pick_safe, T_pick, T_lift]
+
         T_release_target = target_tower.get_next_pose()
-
-        # 1. pick the brick
-        T_pick        = sm.SE3(brick_to_pick.pose())
-        # 0. safe pick pose
-        T_pick_safe   = set_global_height(T_pick, self.max_safe_height)
-        # 2. go up until safe height
-        T_lift        = set_global_height(T_pick, self.max_safe_height)
-
         # 3. shift on the tower
         T_transfer    = set_global_height(T_release_target, self.max_safe_height)
         # 4. correct height where release the brick
@@ -69,7 +70,7 @@ class Controller:
         
         T_end         = set_global_height(T_release_target, self.max_safe_height)
 
-        return [T_pick_safe, T_pick, T_lift, T_transfer, T_release, T_end]
+        return [T_transfer, T_release, T_end]
 
 
     # Robot's movements
@@ -115,7 +116,7 @@ class Controller:
             qdot_initial, error, cond_number = self.compute_qdot(agent, target_pose)
             error_norm = np.linalg.norm(error)
             can_move = task_manager.resolve_collision_precedence(agent, error_norm)
-            print(f'{agent.name}: can I move? {can_move}')
+            #print(f'{agent.name}: can I move? {can_move}')
             qdot_final = qdot_initial
 
             if not can_move:

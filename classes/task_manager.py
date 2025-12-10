@@ -1,5 +1,6 @@
 from typing import List, Tuple
 
+from time import sleep
 import swift
 import spatialmath as sm
 import spatialgeometry as sg
@@ -40,6 +41,12 @@ class TaskManager:
         """
         return self._sensor.get_free_bricks()
     
+    def ask_available_bricks(self):# -> Brick:
+        """
+        ask to the Sensor class a available Brick to pick
+        """
+        return self._sensor.get_available_bricks()
+    
     def ask_towers(self):
         """
         ask to the Sensor class the towers
@@ -48,17 +55,27 @@ class TaskManager:
 
     def search_uncomplete_tower(self):
         """
-        search between the towers in the environment one that is incomplete
+        search between the towers in the environment one that is incomplete and unlocked
         """
-        towers = self._sensor.get_incomplete_towers()
-        return towers[0] if towers else None
-
-    def free_brick(self):
+        available_towers = self._sensor.get_available_towers()
+        if len(available_towers) == 0:
+            return None
+        return available_towers[0]
+    
+    def available_brick(self, robot_name):
         """
-        return a brick free
+        return a free and unlocked brick
         """
-        free_bricks = self._sensor.get_free_bricks()
-        return free_bricks[0] if free_bricks else None
+        # TODO remove panda robot
+        free_bricks = self._sensor.get_available_bricks()
+        if len(free_bricks) == 0:
+            return None
+        if robot_name == "panda":
+            free_bricks = [b for b in free_bricks if b.pose()[0, 3] <= 0.05]
+        elif robot_name == "panda_2":
+            free_bricks = [b for b in free_bricks if b.pose()[0, 3] > 0.05]
+            
+        return free_bricks[0]
         
     # internal methods
     def select_free_agent(self):
@@ -69,33 +86,6 @@ class TaskManager:
             if not r.is_busy():
                 return r
             return None
-
-    def select_brick_and_tower(self, robot_name) -> Tuple[Brick|None, Tower|None]:
-        """
-        select a free brick and a tower to complete from the sensor environent
-        """
-        #brick_to_pick: Brick | None = self.free_brick(sensor)
-        #target_tower: Tower | None = self.search_uncomplete_tower(sensor)
-        free_bricks = self._sensor.get_free_bricks()
-        incomplete_towers = self._sensor.get_incomplete_towers()
-
-        # TODO: check distance between robot and brick and pick the nearest one
-        if robot_name == "panda":
-            free_bricks = [b for b in free_bricks if b.pose()[0, 3] <= 0.05]
-        elif robot_name == "panda_2":
-            free_bricks = [b for b in free_bricks if b.pose()[0, 3] > 0.05]
-    
-        # try to lock both resources
-        for brick_to_pick in free_bricks:
-            if brick_to_pick.try_lock(robot_name):
-                for target_tower in incomplete_towers:
-                    if target_tower.try_lock(robot_name):
-                        return brick_to_pick, target_tower
-                # if no target_tower, release brick
-                brick_to_pick.unlock(robot_name)
-    
-        return None, None
-        #return brick_to_pick, target_tower
 
     def place_one_brick(self, agent: Robot_arm, dt=0.01):
         """
@@ -110,28 +100,46 @@ class TaskManager:
         # if agent is None:
         #     return None
 
-        # select one brick and one tower
-        brick_to_pick, target_tower = self.select_brick_and_tower(agent.name)
+        #request a free and unlocked brick
+        brick_to_pick = self.available_brick(agent.name)
 
-        if brick_to_pick is None or target_tower is None:
+        # if there is no brick, return nothing
+        if brick_to_pick is None:
+            return None
+
+        # try to lock the brick
+        if not brick_to_pick.try_lock(agent.name):
             return None
         
         # calculate the path points
-        way_points = self._controller.generate_path_points(brick_to_pick, target_tower)
+        way_points_brick = self._controller.generate_path_points(brick_to_pick)
 
-        if way_points is None:
+        if way_points_brick is None:
             return None
         
         # 1. go to pick the brick
         # safe pose
-        self._controller.move_to_pose(agent, way_points[0], task_manager=self, dt = dt)
-        # pick the brick
-        print(agent.name, " reached 0")
+        self._controller.move_to_pose(agent, way_points_brick[0], task_manager=self, dt = dt)
         
-        self._controller.move_to_pose(agent, way_points[1], task_manager=self, dt = dt)
-        print(agent.name, " reached 1")
-        # 2. move and place the brick
-        for target_point in way_points[2:-1]:
+        # pick the brick
+        self._controller.move_to_pose(agent, way_points_brick[1], task_manager=self, dt = dt)
+        
+        # with the brick, move it to a safe high
+        self._controller.move_to_pose(agent, way_points_brick[2], brick=brick_to_pick, task_manager=self, dt = dt)
+        
+        # search uncompleted and not locked tower
+        target_tower = self.search_uncomplete_tower()
+        while target_tower is None:
+            target_tower = self.search_uncomplete_tower()
+            print(f"{agent.name}: can't find available tower")
+            sleep(dt*5)
+        # try to lock the tower
+        if not target_tower.try_lock(agent.name):
+            return None
+                    
+        # 2. move and place the brick        
+        way_points = self._controller.generate_path_points(brick_to_pick, target_tower)
+        for target_point in way_points[:-1]:
             self._controller.move_to_pose(agent, target_point, brick=brick_to_pick, task_manager=self, dt = dt)
 
         # fake parallel placing of the brick
@@ -143,10 +151,10 @@ class TaskManager:
 
         # release the locks
         brick_to_pick.unlock(agent.name)
-        target_tower.unlock(agent.name)
         
         # 3. move to safe height
         self._controller.move_to_pose(agent, way_points[-1], task_manager=self, dt = dt)
+        target_tower.unlock(agent.name)
         
         self.__env.step(dt)
 
