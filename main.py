@@ -479,7 +479,7 @@ def task(name: str, all_plots: bool = False, global_plot: bool = True, save: boo
                 save_image(coll_fig, 'plot_metrics_and_trajectory.png', task_directory)
     
     if all_plots:
-        for i in len(robots):
+        for i in range(len(robots)):
             r = robots[i]
 
             views_fig = r.plot_3d_trajectory_views(global_limits=global_range)
@@ -699,4 +699,4 @@ if __name__ == "__main__":
                 "\n- task '4b': two panda robot that build a wall following a pattern" \
                 "\nSELECTION (e.g.: '1a', '1b', ...):" \
                 "\n\ttask: ")
-    task(name)
+    task(name, global_plot=False, all_plots=True)
