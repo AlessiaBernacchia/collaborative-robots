@@ -163,27 +163,77 @@ def initialize_task_4() -> Tuple[List[Robot_arm], List[Brick], List[Tower]]:
     robots = [panda_agent, panda_agent_2]
 
     # bricks
-    brick_A = Brick(sm.SE3(0.0, 0.5, 0.15), color_name="Green")
-    brick_B = Brick(sm.SE3(0.0, 0.5, 0.05), color_name="Red")
-    brick_C = Brick(sm.SE3(0.11, 0.5, 0.15), color_name="Blue")
-    brick_D = Brick(sm.SE3(0.11, 0.5, 0.05), color_name="Blue")
+    brick_A = Brick(sm.SE3(0.0, 0.5, 0.15), color_name="green")
+    brick_B = Brick(sm.SE3(0.0, 0.5, 0.05), color_name="blue")
+    brick_C = Brick(sm.SE3(0.11, 0.5, 0.15), color_name="blue")
+    brick_D = Brick(sm.SE3(0.11, 0.5, 0.05), color_name="green")
 
     brick_E = Brick(sm.SE3(0.22, 0.5, 0.15), color_name="green")
-    brick_F = Brick(sm.SE3(0.22, 0.5, 0.05), color_name="green")
-    brick_G = Brick(sm.SE3(-0.11, 0.5, 0.15), color_name="Red")
-    brick_H = Brick(sm.SE3(-0.11, 0.5, 0.05), color_name="Blue")
+    brick_F = Brick(sm.SE3(0.22, 0.5, 0.05), color_name="blue")
+    brick_G = Brick(sm.SE3(-0.11, 0.5, 0.15), color_name="blue")
+    brick_H = Brick(sm.SE3(-0.11, 0.5, 0.05), color_name="green")
 
     bricks = [brick_A, brick_B, brick_C, brick_D, brick_E, brick_F, brick_G, brick_H]
 
     # towers
     base_A = sm.SE3(0.0, 0.2, 0.05)
-    tower_A = Tower(base_pose=base_A, max_height=3, color_name = "Blue")
+    tower_A = Tower(base_pose=base_A, max_height=4, color_name = "Blue")
 
     base_B = sm.SE3(0.0, -0.2, 0.05)
-    tower_B = Tower(base_pose=base_B, max_height=3, color_name = "Green")
+    tower_B = Tower(base_pose=base_B, max_height=4, color_name = "Green")
+
+    towers = [tower_A, tower_B]
+
+    return robots, bricks, towers
+
+def initialize_task_5() -> Tuple[List[Robot_arm], List[Brick], List[Tower]]:
+    """
+    materials occured for
+    task 4: two panda robot that build a wall following a pattern
+    
+    :return: three lists, one of the agents, one of the bricks in the environment and one for the towers to build
+    :rtype: Tuple[List[Robot_arm], List[Brick], List[Tower]]
+    """
+    # robot
+    panda_agent = Robot_arm("panda", sm.SE3.Rz(0), sm.SE3.Tx(-0.2))
+    panda_agent.set_position(-0.70, 0.0, 0.0)
+    panda_agent.modify_orientation_base()
+
+    panda_agent_2 = Robot_arm("panda_2", sm.SE3.Rz(np.pi), sm.SE3.Tx(0.2))
+    panda_agent_2.set_position(0.70, 0.0, 0.0)
+    panda_agent_2.modify_orientation_base()
+
+    robots = [panda_agent, panda_agent_2]
+
+    # bricks
+    brick_A1 = Brick(sm.SE3(0.0, 0.5, 0.25), color_name="green")
+    brick_A2 = Brick(sm.SE3(0.0, 0.5, 0.15), color_name="blue")
+    brick_A3 = Brick(sm.SE3(0.0, 0.5, 0.05), color_name="red")
+
+    brick_B1 = Brick(sm.SE3(0.11, 0.5, 0.25), color_name="green")
+    brick_B2 = Brick(sm.SE3(0.11, 0.5, 0.15), color_name="red")
+    brick_B3 = Brick(sm.SE3(0.11, 0.5, 0.05), color_name="blue")
+
+    brick_C1 = Brick(sm.SE3(0.22, 0.5, 0.25), color_name="red")
+    brick_C2 = Brick(sm.SE3(0.22, 0.5, 0.15), color_name="blue")
+    brick_C3 = Brick(sm.SE3(0.22, 0.5, 0.05), color_name="green")
+
+    brick_D1 = Brick(sm.SE3(-0.11, 0.5, 0.25), color_name="green")
+    brick_D2 = Brick(sm.SE3(-0.11, 0.5, 0.15), color_name="red")
+    brick_D3 = Brick(sm.SE3(-0.11, 0.5, 0.05), color_name="blue")
+
+    bricks = [brick_A1, brick_A2, brick_A3, brick_B1, brick_B2, brick_B3,
+              brick_C1, brick_C2, brick_C3, brick_D1, brick_D2, brick_D3]
+
+    # towers
+    base_A = sm.SE3(0.0, 0.2, 0.05)
+    tower_A = Tower(base_pose=base_A, max_height=4, color_name = "Blue")
+
+    base_B = sm.SE3(0.0, -0.2, 0.05)
+    tower_B = Tower(base_pose=base_B, max_height=4, color_name = "Green")
 
     base_C = sm.SE3(0.0, 0.0, 0.05)
-    tower_C = Tower(base_pose=base_C, max_height=2, color_name = "Red")
+    tower_C = Tower(base_pose=base_C, max_height=4, color_name = "Red")
 
     towers = [tower_A, tower_B, tower_C]
 
@@ -389,7 +439,7 @@ if __name__ == "__main__":
     env.launch(realtime=True, comms="rtc", browser="browser")
     
     # initialize the task
-    robots, bricks, towers = initialize_task_4()
+    robots, bricks, towers = initialize_task_5()
 
     # add elements to the environment
     for r in robots:
