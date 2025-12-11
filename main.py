@@ -14,10 +14,10 @@ import os
 PLOTS_DIR = './plots'
 
 # TASK INITIALIZATIONS
-def initialize_task_1() -> Tuple[List[Robot_arm], List[Brick], List[Tower]]:
+def initialize_task_1a() -> Tuple[List[Robot_arm], List[Brick], List[Tower]]:
     """
     materials occured for
-    task 1: one panda robot that build one single tower
+    task 1a: one panda robot that build one single tower
     
     :return: three lists, one of the agents, one of the bricks in the environment and one for the towers to build
     :rtype: Tuple[List[Robot_arm], List[Brick], List[Tower]]
@@ -30,101 +30,102 @@ def initialize_task_1() -> Tuple[List[Robot_arm], List[Brick], List[Tower]]:
     robots = [panda_agent]
 
     # bricks
-    brick_A = Brick(sm.SE3(0.0, 0.5, 0.15))
-    brick_B = Brick(sm.SE3(0.0, 0.5, 0.05))
-    brick_C = Brick(sm.SE3(0.11, 0.5, 0.15))
-    brick_D = Brick(sm.SE3(0.11, 0.5, 0.05))
-
-    brick_E = Brick(sm.SE3(0.22, 0.5, 0.15))
-    brick_F = Brick(sm.SE3(0.22, 0.5, 0.05))
-    brick_G = Brick(sm.SE3(-0.11, 0.5, 0.15))
-    brick_H = Brick(sm.SE3(-0.11, 0.5, 0.05))
-
-    bricks = [brick_A, brick_B, brick_C, brick_D, brick_E, brick_F, brick_G, brick_H]
-
-    # towers
-    base_A = sm.SE3(0.0, 0.2, 0.05)
-    tower_A = Tower(base_pose=base_A, max_height=6)
-    
-    towers = [tower_A]
-
-    return robots, bricks, towers
-
-def initialize_task_2() -> Tuple[List[Robot_arm], List[Brick], List[Tower]]:
-    """
-    materials occured for
-    task 2: two panda robots that build one single tower
-    
-    :return: three lists, one of the agents, one of the bricks in the environment and one for the towers to build
-    :rtype: Tuple[List[Robot_arm], List[Brick], List[Tower]]
-    """
-    # robot
-    panda_agent = Robot_arm("panda", sm.SE3.Rz(0), sm.SE3.Tx(-0.2))
-    panda_agent.set_position(-0.70, 0.0, 0.0)
-    panda_agent.modify_orientation_base()
-
-    panda_agent_2 = Robot_arm("panda_2", sm.SE3.Rz(np.pi), sm.SE3.Tx(0.2))
-    panda_agent_2.set_position(0.70, 0.0, 0.0)
-    panda_agent_2.modify_orientation_base()
-
-    robots = [panda_agent, panda_agent_2]
-
-    # bricks
-    brick_A = Brick(sm.SE3(0.0, 0.5, 0.15))
-    brick_B = Brick(sm.SE3(0.0, 0.5, 0.05))
-    brick_C = Brick(sm.SE3(0.11, 0.5, 0.15))
-    brick_D = Brick(sm.SE3(0.11, 0.5, 0.05))
-
-    brick_E = Brick(sm.SE3(0.22, 0.5, 0.15))
-    brick_F = Brick(sm.SE3(0.22, 0.5, 0.05))
-    brick_G = Brick(sm.SE3(-0.11, 0.5, 0.15))
-    brick_H = Brick(sm.SE3(-0.11, 0.5, 0.05))
-
-    bricks = [brick_A, brick_B, brick_C, brick_D, brick_E, brick_F, brick_G, brick_H]
-
-    # towers
-    base_A = sm.SE3(0.0, 0.2, 0.05)
-    tower_A = Tower(base_pose=base_A, max_height=6)
-    
-    towers = [tower_A]
-
-    return robots, bricks, towers
-
-def initialize_task_3() -> Tuple[List[Robot_arm], List[Brick], List[Tower]]:
-    """
-    materials occured for
-    task 3: two panda robot that build a wall
-    
-    :return: three lists, one of the agents, one of the bricks in the environment and one for the towers to build
-    :rtype: Tuple[List[Robot_arm], List[Brick], List[Tower]]
-    """
-    # robot
-    panda_agent = Robot_arm("panda", sm.SE3.Rz(0), sm.SE3.Tx(-0.2))
-    panda_agent.set_position(-0.70, 0.0, 0.0)
-    panda_agent.modify_orientation_base()
-
-    panda_agent_2 = Robot_arm("panda_2", sm.SE3.Rz(np.pi), sm.SE3.Tx(0.2))
-    panda_agent_2.set_position(0.70, 0.0, 0.0)
-    panda_agent_2.modify_orientation_base()
-
-    robots = [panda_agent, panda_agent_2]
-
-    # bricks
-    brick_A1 = Brick(sm.SE3(0.0, 0.5, 0.25))
+    brick_A1 = Brick(sm.SE3(0.0, 0.5, 0.05))
     brick_A2 = Brick(sm.SE3(0.0, 0.5, 0.15))
-    brick_A3 = Brick(sm.SE3(0.0, 0.5, 0.05))
 
-    brick_B1 = Brick(sm.SE3(0.11, 0.5, 0.25))
+    brick_B1 = Brick(sm.SE3(0.11, 0.5, 0.05))
     brick_B2 = Brick(sm.SE3(0.11, 0.5, 0.15))
-    brick_B3 = Brick(sm.SE3(0.11, 0.5, 0.05))
 
-    brick_C1 = Brick(sm.SE3(0.22, 0.5, 0.25))
+    brick_C1 = Brick(sm.SE3(0.22, 0.5, 0.05))
     brick_C2 = Brick(sm.SE3(0.22, 0.5, 0.15))
-    brick_C3 = Brick(sm.SE3(0.22, 0.5, 0.05))
 
-    brick_D1 = Brick(sm.SE3(-0.11, 0.5, 0.25))
+    brick_D1 = Brick(sm.SE3(-0.11, 0.5, 0.05))
     brick_D2 = Brick(sm.SE3(-0.11, 0.5, 0.15))
-    brick_D3 = Brick(sm.SE3(-0.11, 0.5, 0.05))
+
+    bricks = [brick_A1, brick_A2, brick_B1, brick_B2,
+              brick_C1, brick_C2, brick_D1, brick_D2]
+
+    # towers
+    base_A = sm.SE3(0.0, 0.2, 0.05)
+    tower_A = Tower(base_pose=base_A, max_height=6)
+    
+    towers = [tower_A]
+
+    return robots, bricks, towers
+
+def initialize_task_1b() -> Tuple[List[Robot_arm], List[Brick], List[Tower]]:
+    """
+    materials occured for
+    task 1b: two panda robots that build one single tower
+    
+    :return: three lists, one of the agents, one of the bricks in the environment and one for the towers to build
+    :rtype: Tuple[List[Robot_arm], List[Brick], List[Tower]]
+    """
+    # robot
+    panda_agent = Robot_arm("panda", sm.SE3.Rz(0), sm.SE3.Tx(-0.2))
+    panda_agent.set_position(-0.70, 0.0, 0.0)
+    panda_agent.modify_orientation_base()
+
+    panda_agent_2 = Robot_arm("panda_2", sm.SE3.Rz(np.pi), sm.SE3.Tx(0.2))
+    panda_agent_2.set_position(0.70, 0.0, 0.0)
+    panda_agent_2.modify_orientation_base()
+
+    robots = [panda_agent, panda_agent_2]
+
+    # bricks
+    brick_A1 = Brick(sm.SE3(0.0, 0.5, 0.15))
+    brick_A2 = Brick(sm.SE3(0.0, 0.5, 0.05))
+
+    brick_B1 = Brick(sm.SE3(0.11, 0.5, 0.05))
+    brick_B2 = Brick(sm.SE3(0.11, 0.5, 0.15))
+
+    brick_C1 = Brick(sm.SE3(0.22, 0.5, 0.05))
+    brick_C2 = Brick(sm.SE3(0.22, 0.5, 0.15))
+
+    brick_D1 = Brick(sm.SE3(-0.11, 0.5, 0.05))
+    brick_D2 = Brick(sm.SE3(-0.11, 0.5, 0.15))
+
+    bricks = [brick_A1, brick_A2, brick_B1, brick_B2,
+              brick_C1, brick_C2, brick_D1, brick_D2]
+    # towers
+    base_A = sm.SE3(0.0, 0.2, 0.05)
+    tower_A = Tower(base_pose=base_A, max_height=6)
+    
+    towers = [tower_A]
+
+    return robots, bricks, towers
+
+def initialize_task_2a() -> Tuple[List[Robot_arm], List[Brick], List[Tower]]:
+    """
+    materials occured for
+    task 2a: one panda robot that build a wall
+    
+    :return: three lists, one of the agents, one of the bricks in the environment and one for the towers to build
+    :rtype: Tuple[List[Robot_arm], List[Brick], List[Tower]]
+    """
+    # robot
+    panda_agent = Robot_arm("panda", sm.SE3.Rz(0), sm.SE3.Tx(-0.2))
+    panda_agent.set_position(-0.70, 0.0, 0.0)
+    panda_agent.modify_orientation_base()
+
+    robots = [panda_agent]
+
+    # bricks
+    brick_A1 = Brick(sm.SE3(0.0, 0.5, 0.05))
+    brick_A2 = Brick(sm.SE3(0.0, 0.5, 0.15))
+    brick_A3 = Brick(sm.SE3(0.0, 0.5, 0.25))
+
+    brick_B1 = Brick(sm.SE3(0.11, 0.5, 0.05))
+    brick_B2 = Brick(sm.SE3(0.11, 0.5, 0.15))
+    brick_B3 = Brick(sm.SE3(0.11, 0.5, 0.25))
+
+    brick_C1 = Brick(sm.SE3(0.22, 0.5, 0.05))
+    brick_C2 = Brick(sm.SE3(0.22, 0.5, 0.15))
+    brick_C3 = Brick(sm.SE3(0.22, 0.5, 0.25))
+
+    brick_D1 = Brick(sm.SE3(-0.11, 0.5, 0.05))
+    brick_D2 = Brick(sm.SE3(-0.11, 0.5, 0.15))
+    brick_D3 = Brick(sm.SE3(-0.11, 0.5, 0.25))
 
     bricks = [brick_A1, brick_A2, brick_A3, brick_B1, brick_B2, brick_B3,
               brick_C1, brick_C2, brick_C3, brick_D1, brick_D2, brick_D3]
@@ -143,10 +144,10 @@ def initialize_task_3() -> Tuple[List[Robot_arm], List[Brick], List[Tower]]:
 
     return robots, bricks, towers
 
-def initialize_task_4() -> Tuple[List[Robot_arm], List[Brick], List[Tower]]:
+def initialize_task_2b() -> Tuple[List[Robot_arm], List[Brick], List[Tower]]:
     """
     materials occured for
-    task 4: two panda robot that build a wall following a pattern
+    task 2b: two panda robot that build a wall
     
     :return: three lists, one of the agents, one of the bricks in the environment and one for the towers to build
     :rtype: Tuple[List[Robot_arm], List[Brick], List[Tower]]
@@ -163,17 +164,69 @@ def initialize_task_4() -> Tuple[List[Robot_arm], List[Brick], List[Tower]]:
     robots = [panda_agent, panda_agent_2]
 
     # bricks
-    brick_A = Brick(sm.SE3(0.0, 0.5, 0.15), color_name="green")
-    brick_B = Brick(sm.SE3(0.0, 0.5, 0.05), color_name="blue")
-    brick_C = Brick(sm.SE3(0.11, 0.5, 0.15), color_name="blue")
-    brick_D = Brick(sm.SE3(0.11, 0.5, 0.05), color_name="green")
+    brick_A1 = Brick(sm.SE3(0.0, 0.5, 0.05))
+    brick_A2 = Brick(sm.SE3(0.0, 0.5, 0.15))
+    brick_A3 = Brick(sm.SE3(0.0, 0.5, 0.25))
 
-    brick_E = Brick(sm.SE3(0.22, 0.5, 0.15), color_name="green")
-    brick_F = Brick(sm.SE3(0.22, 0.5, 0.05), color_name="blue")
-    brick_G = Brick(sm.SE3(-0.11, 0.5, 0.15), color_name="blue")
-    brick_H = Brick(sm.SE3(-0.11, 0.5, 0.05), color_name="green")
+    brick_B1 = Brick(sm.SE3(0.11, 0.5, 0.05))
+    brick_B2 = Brick(sm.SE3(0.11, 0.5, 0.15))
+    brick_B3 = Brick(sm.SE3(0.11, 0.5, 0.25))
 
-    bricks = [brick_A, brick_B, brick_C, brick_D, brick_E, brick_F, brick_G, brick_H]
+    brick_C1 = Brick(sm.SE3(0.22, 0.5, 0.05))
+    brick_C2 = Brick(sm.SE3(0.22, 0.5, 0.15))
+    brick_C3 = Brick(sm.SE3(0.22, 0.5, 0.25))
+
+    brick_D1 = Brick(sm.SE3(-0.11, 0.5, 0.05))
+    brick_D2 = Brick(sm.SE3(-0.11, 0.5, 0.15))
+    brick_D3 = Brick(sm.SE3(-0.11, 0.5, 0.25))
+
+    bricks = [brick_A1, brick_A2, brick_A3, brick_B1, brick_B2, brick_B3,
+              brick_C1, brick_C2, brick_C3, brick_D1, brick_D2, brick_D3]
+
+    # towers
+    base_A = sm.SE3(0.0, 0.2, 0.05)
+    tower_A = Tower(base_pose=base_A, max_height=4)
+    
+    base_B = sm.SE3(0.0, -0.2, 0.05)
+    tower_B = Tower(base_pose=base_B, max_height=4)
+    
+    base_C = sm.SE3(0.0, 0.0, 0.05)
+    tower_C = Tower(base_pose=base_C, max_height=4)
+    
+    towers = [tower_A, tower_B, tower_C]
+
+    return robots, bricks, towers
+
+def initialize_task_3a() -> Tuple[List[Robot_arm], List[Brick], List[Tower]]:
+    """
+    materials occured for
+    task 3a: one panda robot that build two towers following a pattern
+    
+    :return: three lists, one of the agents, one of the bricks in the environment and one for the towers to build
+    :rtype: Tuple[List[Robot_arm], List[Brick], List[Tower]]
+    """
+    # robot
+    panda_agent = Robot_arm("panda", sm.SE3.Rz(0), sm.SE3.Tx(-0.2))
+    panda_agent.set_position(-0.70, 0.0, 0.0)
+    panda_agent.modify_orientation_base()
+
+    robots = [panda_agent]
+
+    # bricks
+    brick_A1 = Brick(sm.SE3(0.0, 0.5, 0.05), color_name="blue")
+    brick_A2 = Brick(sm.SE3(0.0, 0.5, 0.15), color_name="green")
+
+    brick_B1 = Brick(sm.SE3(0.11, 0.5, 0.05), color_name="green")
+    brick_B2 = Brick(sm.SE3(0.11, 0.5, 0.15), color_name="blue")
+
+    brick_C1 = Brick(sm.SE3(0.22, 0.5, 0.05), color_name="blue")
+    brick_C2 = Brick(sm.SE3(0.22, 0.5, 0.15), color_name="green")
+
+    brick_D1 = Brick(sm.SE3(-0.11, 0.5, 0.05), color_name="green")
+    brick_D2 = Brick(sm.SE3(-0.11, 0.5, 0.15), color_name="blue")
+
+    bricks = [brick_A1, brick_A2, brick_B1, brick_B2,
+              brick_C1, brick_C2, brick_D1, brick_D2]
 
     # towers
     base_A = sm.SE3(0.0, 0.2, 0.05)
@@ -186,10 +239,10 @@ def initialize_task_4() -> Tuple[List[Robot_arm], List[Brick], List[Tower]]:
 
     return robots, bricks, towers
 
-def initialize_task_5() -> Tuple[List[Robot_arm], List[Brick], List[Tower]]:
+def initialize_task_3b() -> Tuple[List[Robot_arm], List[Brick], List[Tower]]:
     """
     materials occured for
-    task 4: two panda robot that build a wall following a pattern
+    task 3b: two panda robot that build two towers following a pattern
     
     :return: three lists, one of the agents, one of the bricks in the environment and one for the towers to build
     :rtype: Tuple[List[Robot_arm], List[Brick], List[Tower]]
@@ -206,21 +259,63 @@ def initialize_task_5() -> Tuple[List[Robot_arm], List[Brick], List[Tower]]:
     robots = [panda_agent, panda_agent_2]
 
     # bricks
-    brick_A1 = Brick(sm.SE3(0.0, 0.5, 0.25), color_name="green")
+    brick_A1 = Brick(sm.SE3(0.0, 0.5, 0.05), color_name="blue")
+    brick_A2 = Brick(sm.SE3(0.0, 0.5, 0.15), color_name="green")
+
+    brick_B1 = Brick(sm.SE3(0.11, 0.5, 0.05), color_name="green")
+    brick_B2 = Brick(sm.SE3(0.11, 0.5, 0.15), color_name="blue")
+
+    brick_C1 = Brick(sm.SE3(0.22, 0.5, 0.05), color_name="blue")
+    brick_C2 = Brick(sm.SE3(0.22, 0.5, 0.15), color_name="green")
+
+    brick_D1 = Brick(sm.SE3(-0.11, 0.5, 0.05), color_name="green")
+    brick_D2 = Brick(sm.SE3(-0.11, 0.5, 0.15), color_name="blue")
+
+    bricks = [brick_A1, brick_A2, brick_B1, brick_B2,
+              brick_C1, brick_C2, brick_D1, brick_D2]
+
+    # towers
+    base_A = sm.SE3(0.0, 0.2, 0.05)
+    tower_A = Tower(base_pose=base_A, max_height=4, color_name = "Blue")
+
+    base_B = sm.SE3(0.0, -0.2, 0.05)
+    tower_B = Tower(base_pose=base_B, max_height=4, color_name = "Green")
+
+    towers = [tower_A, tower_B]
+
+    return robots, bricks, towers
+
+def initialize_task_4a() -> Tuple[List[Robot_arm], List[Brick], List[Tower]]:
+    """
+    materials occured for
+    task 4a: one panda robot that build a wall following a pattern
+    
+    :return: three lists, one of the agents, one of the bricks in the environment and one for the towers to build
+    :rtype: Tuple[List[Robot_arm], List[Brick], List[Tower]]
+    """
+    # robot
+    panda_agent = Robot_arm("panda", sm.SE3.Rz(0), sm.SE3.Tx(-0.2))
+    panda_agent.set_position(-0.70, 0.0, 0.0)
+    panda_agent.modify_orientation_base()
+
+    robots = [panda_agent]
+
+    # bricks
+    brick_A1 = Brick(sm.SE3(0.0, 0.5, 0.05), color_name="green")
     brick_A2 = Brick(sm.SE3(0.0, 0.5, 0.15), color_name="blue")
-    brick_A3 = Brick(sm.SE3(0.0, 0.5, 0.05), color_name="red")
+    brick_A3 = Brick(sm.SE3(0.0, 0.5, 0.25), color_name="red")
 
-    brick_B1 = Brick(sm.SE3(0.11, 0.5, 0.25), color_name="green")
+    brick_B1 = Brick(sm.SE3(0.11, 0.5, 0.05), color_name="green")
     brick_B2 = Brick(sm.SE3(0.11, 0.5, 0.15), color_name="red")
-    brick_B3 = Brick(sm.SE3(0.11, 0.5, 0.05), color_name="blue")
+    brick_B3 = Brick(sm.SE3(0.11, 0.5, 0.25), color_name="blue")
 
-    brick_C1 = Brick(sm.SE3(0.22, 0.5, 0.25), color_name="red")
+    brick_C1 = Brick(sm.SE3(0.22, 0.5, 0.05), color_name="red")
     brick_C2 = Brick(sm.SE3(0.22, 0.5, 0.15), color_name="blue")
-    brick_C3 = Brick(sm.SE3(0.22, 0.5, 0.05), color_name="green")
+    brick_C3 = Brick(sm.SE3(0.22, 0.5, 0.25), color_name="green")
 
-    brick_D1 = Brick(sm.SE3(-0.11, 0.5, 0.25), color_name="green")
+    brick_D1 = Brick(sm.SE3(-0.11, 0.5, 0.05), color_name="green")
     brick_D2 = Brick(sm.SE3(-0.11, 0.5, 0.15), color_name="red")
-    brick_D3 = Brick(sm.SE3(-0.11, 0.5, 0.05), color_name="blue")
+    brick_D3 = Brick(sm.SE3(-0.11, 0.5, 0.25), color_name="blue")
 
     bricks = [brick_A1, brick_A2, brick_A3, brick_B1, brick_B2, brick_B3,
               brick_C1, brick_C2, brick_C3, brick_D1, brick_D2, brick_D3]
@@ -238,6 +333,152 @@ def initialize_task_5() -> Tuple[List[Robot_arm], List[Brick], List[Tower]]:
     towers = [tower_A, tower_B, tower_C]
 
     return robots, bricks, towers
+
+def initialize_task_4b() -> Tuple[List[Robot_arm], List[Brick], List[Tower]]:
+    """
+    materials occured for
+    task 4b: two panda robot that build a wall following a pattern
+    
+    :return: three lists, one of the agents, one of the bricks in the environment and one for the towers to build
+    :rtype: Tuple[List[Robot_arm], List[Brick], List[Tower]]
+    """
+    # robot
+    panda_agent = Robot_arm("panda", sm.SE3.Rz(0), sm.SE3.Tx(-0.2))
+    panda_agent.set_position(-0.70, 0.0, 0.0)
+    panda_agent.modify_orientation_base()
+
+    panda_agent_2 = Robot_arm("panda_2", sm.SE3.Rz(np.pi), sm.SE3.Tx(0.2))
+    panda_agent_2.set_position(0.70, 0.0, 0.0)
+    panda_agent_2.modify_orientation_base()
+
+    robots = [panda_agent, panda_agent_2]
+
+    # bricks
+    brick_A1 = Brick(sm.SE3(0.0, 0.5, 0.05), color_name="green")
+    brick_A2 = Brick(sm.SE3(0.0, 0.5, 0.15), color_name="blue")
+    brick_A3 = Brick(sm.SE3(0.0, 0.5, 0.25), color_name="red")
+
+    brick_B1 = Brick(sm.SE3(0.11, 0.5, 0.05), color_name="green")
+    brick_B2 = Brick(sm.SE3(0.11, 0.5, 0.15), color_name="red")
+    brick_B3 = Brick(sm.SE3(0.11, 0.5, 0.25), color_name="blue")
+
+    brick_C1 = Brick(sm.SE3(0.22, 0.5, 0.05), color_name="red")
+    brick_C2 = Brick(sm.SE3(0.22, 0.5, 0.15), color_name="blue")
+    brick_C3 = Brick(sm.SE3(0.22, 0.5, 0.25), color_name="green")
+
+    brick_D1 = Brick(sm.SE3(-0.11, 0.5, 0.05), color_name="green")
+    brick_D2 = Brick(sm.SE3(-0.11, 0.5, 0.15), color_name="red")
+    brick_D3 = Brick(sm.SE3(-0.11, 0.5, 0.25), color_name="blue")
+
+    bricks = [brick_A1, brick_A2, brick_A3, brick_B1, brick_B2, brick_B3,
+              brick_C1, brick_C2, brick_C3, brick_D1, brick_D2, brick_D3]
+
+    # towers
+    base_A = sm.SE3(0.0, 0.2, 0.05)
+    tower_A = Tower(base_pose=base_A, max_height=4, color_name = "Blue")
+
+    base_B = sm.SE3(0.0, -0.2, 0.05)
+    tower_B = Tower(base_pose=base_B, max_height=4, color_name = "Green")
+
+    base_C = sm.SE3(0.0, 0.0, 0.05)
+    tower_C = Tower(base_pose=base_C, max_height=4, color_name = "Red")
+
+    towers = [tower_A, tower_B, tower_C]
+
+    return robots, bricks, towers
+
+def run_task(env: swift.Swift, robots: List[Robot_arm], bricks: List[Brick], towers: List[Tower]) -> Tuple[int]:
+    """
+    Run the general task given the resources
+    """
+    # add elements to the environment
+    for r in robots:
+        r.register(env)
+
+    for b in bricks:
+        env.add(b.obj)
+
+    # initialize the sensor
+    sensor = Sensor(env, bricks=bricks, towers=towers, robots=robots)
+    # initialize the controller of the robot  
+    controller = Controller(env) 
+    # initialize the task manager
+    task_manager = TaskManager(env, sensor, robots=robots, controller=controller)
+
+    start_time = time.time()
+    task_manager.start()
+    end_time=time.time()
+
+    return start_time, end_time
+
+def task(name: str, all_plots: bool = False, global_plot: bool = True, save: bool = False, dir_path: str = PLOTS_DIR):
+    """
+    Initialize, perform and plot the metrics of a given task:
+    - task '1a': one panda robot that build one single tower
+    - task '2a': one panda robot that build a wall
+    - task '3a': one panda robot that build two towers following a pattern
+    - task '4a': one panda robot that build a wall following a pattern
+    - task '1b': two panda robot that build one single tower
+    - task '2b': two panda robot that build a wall
+    - task '3b': two panda robot that build two towers following a pattern
+    - task '4b': two panda robot that build a wall following a pattern
+    """
+    # create the swift enviroment
+    env = swift.Swift()
+    env.launch(realtime=True, comms="rtc", browser="browser")
+    
+    if name == '1a':
+        robots, bricks, towers = initialize_task_1a()
+    elif name == '1b':
+        robots, bricks, towers = initialize_task_1b()
+    elif name == '2a':
+        robots, bricks, towers = initialize_task_2a()
+    elif name == '2b':
+        robots, bricks, towers = initialize_task_2b()
+    elif name == '3a':
+        robots, bricks, towers = initialize_task_3a()
+    elif name == '3b':
+        robots, bricks, towers = initialize_task_3b()
+    elif name == '4a':
+        robots, bricks, towers = initialize_task_4a()
+    elif name == '4b':
+        robots, bricks, towers = initialize_task_4b()
+
+    start_time, end_time = run_task(env, robots, bricks, towers)
+
+    print(f'global time: {end_time-start_time}')
+
+    global_range = global_limits(robots)
+
+    task_directory = os.path.join(dir_path, f'_{name}')
+
+    if len(robots) == 0:
+        if global_plot:
+            # TODO global plot
+            if save:
+                #save_image(glob_fig, 'plot_metrics_and_trajectory.png', task_directory)
+                pass
+    else:
+        if global_plot:
+            glob_fig = plot_all_metrics_combined(robots[0], robots[1], global_range, start_time=start_time, end_time=end_time)
+            coll_fig = plot_inter_robot_distance(robots[0], robots[1], start_time=start_time, end_time=end_time)
+            if save:
+                save_image(glob_fig, 'plot_metrics_and_trajectory.png', task_directory)
+                save_image(coll_fig, 'plot_metrics_and_trajectory.png', task_directory)
+    
+    if all_plots:
+        for i in len(robots):
+            r = robots[i]
+
+            views_fig = r.plot_3d_trajectory_views(global_limits=global_range)
+            heigth_fig = r.plot_height_over_time(start_time=start_time, end_time=end_time, global_limits=global_range)
+            joint_fig = r.plot_performance_metrics(start_time=start_time, end_time=end_time)
+
+            if save:
+                save_image(views_fig, f'3d_trajectory_views[{r.name}].png', task_directory)
+                save_image(heigth_fig, f'plot_height_over_time[{r.name}].png', task_directory)
+                save_image(joint_fig, f'plot_joints_metrics[{r.name}].png', task_directory)
+
 
 def save_image(fig, file_name, dir_path=PLOTS_DIR):
     """
@@ -303,6 +544,7 @@ def plot_all_metrics_combined(panda_agent_1, panda_agent_2, global_limits_3d=Non
     # for robot 1
     ax_qd_1   = fig.add_subplot(gs[0, 0:3])  # Robot 1: q_dot (su 2 colonne)
     ax_cond_1 = fig.add_subplot(gs[1, 0:3], sharex=ax_qd_1) # Robot 1: kappa (sotto qd_1)
+    
     # for robot 2
     ax_qd_2   = fig.add_subplot(gs[0, 3:6], sharey=ax_qd_1)  # Robot 2: q_dot (sulla stessa scala Y di qd_1)
     ax_cond_2 = fig.add_subplot(gs[1, 3:6], sharex=ax_qd_2) # Robot 2: kappa 
@@ -434,36 +676,51 @@ def plot_inter_robot_distance(robot1, robot2, ax, start_time=None, end_time=None
     ax.set_xlim(0, t_common[-1])
 
 if __name__ == "__main__":
-    # create the swift enviroment
-    env = swift.Swift()
-    env.launch(realtime=True, comms="rtc", browser="browser")
+    name = input("Select one of the following task: ' \
+                '\n- task '1a': one panda robot that build one single tower " \
+                "\n- task '2a': one panda robot that build a wall" \
+                "\n- task '3a': one panda robot that build two towers following a pattern"
+                "\n- task '4a': one panda robot that build a wall following a pattern"
+                "\n- task '1b': two panda robot that build one single tower"
+                "\n- task '2b': two panda robot that build a wall"
+                "\n- task '3b': two panda robot that build two towers following a pattern"
+                "\n- task '4b': two panda robot that build a wall following a pattern" \
+                "\nSELECTION (e.g.: '1a', '1b', ...):" \
+                "\n\ttask:")
+    task(name)
     
-    # initialize the task
-    robots, bricks, towers = initialize_task_1()
 
-    # add elements to the environment
-    for r in robots:
-        r.register(env)
 
-    for b in bricks:
-        env.add(b.obj)
+    # # create the swift enviroment
+    # env = swift.Swift()
+    # env.launch(realtime=True, comms="rtc", browser="browser")
 
-    # initialize the sensor
-    sensor = Sensor(env, bricks=bricks, towers=towers, robots=robots)
-    # initialize the controller of the robot  
-    controller = Controller(env) 
-    # initialize the task manager
-    task_manager = TaskManager(env, sensor, robots=robots, controller=controller)
+    # # initialize the task
+    # robots, bricks, towers = initialize_task_4a()
 
-    start_time = time.time()
-    task_manager.start()
-    end_time=time.time()
-    print(f'global time: {end_time-start_time}')
+    # # add elements to the environment
+    # for r in robots:
+    #     r.register(env)
 
-    global_range = global_limits(robots) 
-    # fig = plot_all_metrics_combined(robots[0], robots[1], global_range, start_time, end_time, figsize=(17,20))
-    # save_image(fig, 'plot_metrics_and_trajectory.png')
+    # for b in bricks:
+    #     env.add(b.obj)
+
+    # # initialize the sensor
+    # sensor = Sensor(env, bricks=bricks, towers=towers, robots=robots)
+    # # initialize the controller of the robot  
+    # controller = Controller(env) 
+    # # initialize the task manager
+    # task_manager = TaskManager(env, sensor, robots=robots, controller=controller)
+
+    # start_time = time.time()
+    # task_manager.start()
+    # end_time=time.time()
+    # print(f'global time: {end_time-start_time}')
+
+    # global_range = global_limits(robots) 
+    # # fig = plot_all_metrics_combined(robots[0], robots[1], global_range, start_time, end_time, figsize=(17,20))
+    # # save_image(fig, 'plot_metrics_and_trajectory.png')
     
-    fig = plot_all_metrics_combined(robots[0], robots[1], global_range, start_time, end_time, figsize=(18,14))
-    #save_image(fig, 'plot_metrics_and_trajectory.png')
+    # fig = plot_all_metrics_combined(robots[0], robots[1], global_range, start_time, end_time, figsize=(18,14))
+    # #save_image(fig, 'plot_metrics_and_trajectory.png')
 
