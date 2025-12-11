@@ -688,7 +688,6 @@ if __name__ == "__main__":
                 "\nSELECTION (e.g.: '1a', '1b', ...):" \
                 "\n\ttask:")
     task(name)
-    
 
 
     # # create the swift enviroment

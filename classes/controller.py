@@ -37,7 +37,7 @@ class Controller:
     def __init__(self, env: swift.Swift):
         self.__env = env
         self.max_safe_height = MAX_SAFE_LIFT_HEIGHT
-        self.gain = 1.5    
+        self.gain = 4    
     
     def generate_path_points(self, brick_to_pick: Brick | None, target_tower: Tower | None = None):
         """
@@ -111,7 +111,7 @@ class Controller:
         pos = robot.fkine(robot.q)
         brick.update_position(pos)
     
-    def move_to_pose(self, agent: Robot_arm, target_pose: sm.SE3, task_manager, brick: Brick = None, dt: float = 0.01, tol: float = 0.001, waiting_t: float = 2.0):
+    def move_to_pose(self, agent: Robot_arm, target_pose: sm.SE3, task_manager, brick: Brick = None, dt: float = 0.01, tol: float = 0.001):
         """
         moves the robot end-effector to a target pose,
         if brick is specified, the robot drags it
@@ -136,6 +136,7 @@ class Controller:
             
             # if it cannot move, the robot will stay away from the danger area.
             waiting_counter = 0
+            waiting_t = 20*dt
             while not can_move and waiting_counter <= waiting_t:
                 qdot_avoidance, error_avoidance, cond_number_avoidance = self.compute_qdot(agent, target_pose@agent._safe_transition)
                 agent.apply_velocity_cmd(qdot_avoidance, cond_number_avoidance, error_avoidance)
