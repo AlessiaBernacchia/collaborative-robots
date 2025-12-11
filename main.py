@@ -464,10 +464,17 @@ def task(name: str, all_plots: bool = False, global_plot: bool = True, save: boo
 
     task_directory = os.path.join(dir_path, f'_{name}')
 
-    if len(robots) == 0:
+    if len(robots) == 1:
         if global_plot:
             # TODO global plot
+            views_fig = robots[0].plot_3d_trajectory_views(global_limits=global_range)
+            height_fig = robots[0].plot_height_over_time(start_time=start_time, end_time=end_time, global_limits=global_range)
+            joint_fig = robots[0].plot_performance_metrics(start_time=start_time, end_time=end_time)
             if save:
+                save_image(views_fig, f'3d_trajectory_views_{name}.png', task_directory)
+                save_image(height_fig, f'plot_height_over_time_{name}.png', task_directory)
+                save_image(joint_fig, f'plot_joints_metrics_{name}.png', task_directory)
+    
                 #save_image(glob_fig, 'plot_metrics_and_trajectory.png', task_directory)
                 pass
     else:
@@ -476,10 +483,10 @@ def task(name: str, all_plots: bool = False, global_plot: bool = True, save: boo
             coll_fig = plot_inter_robot_distance(robots[0], robots[1], start_time=start_time, end_time=end_time)
             if save:
                 save_image(glob_fig, 'plot_metrics_and_trajectory.png', task_directory)
-                save_image(coll_fig, 'plot_metrics_and_trajectory.png', task_directory)
+                save_image(coll_fig, 'plot_inter_robot_distance.png', task_directory)
     
     if all_plots:
-        for i in len(robots):
+        for i in range(len(robots)):
             r = robots[i]
 
             views_fig = r.plot_3d_trajectory_views(global_limits=global_range)
@@ -625,10 +632,17 @@ def plot_all_metrics_combined(panda_agent_1, panda_agent_2, global_limits_3d=Non
 
     return fig
 
-def plot_inter_robot_distance(robot1, robot2, ax, start_time=None, end_time=None):
+def plot_inter_robot_distance(robot1, robot2, ax=None, start_time=None, end_time=None):
     """
     Plot the distance between two robots' end-effectors over time.
     """
+    standalone = (ax is None)
+    
+    if standalone:
+        fig, ax = plt.subplots(figsize=(12, 4))
+    else:
+        fig = ax.get_figure()
+
     # Get trajectories
     ee1, t1 = robot1.get_trajectory()
     ee2, t2 = robot2.get_trajectory()
@@ -687,6 +701,11 @@ def plot_inter_robot_distance(robot1, robot2, ax, start_time=None, end_time=None
     ax.legend(loc='best')
     ax.set_xlim(0, t_common[-1])
 
+    if standalone:
+        plt.show()
+    
+    return fig
+
 if __name__ == "__main__":
     name = input("Select one of the following task: ' \
                 '\n- task '1a': one panda robot that build one single tower " \
@@ -699,4 +718,4 @@ if __name__ == "__main__":
                 "\n- task '4b': two panda robot that build a wall following a pattern" \
                 "\nSELECTION (e.g.: '1a', '1b', ...):" \
                 "\n\ttask: ")
-    task(name)
+    task(name, all_plots=True, global_plot=True, save=True)
