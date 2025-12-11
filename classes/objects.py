@@ -56,13 +56,14 @@ class Tower:
     
 
 class Brick:
+    alpha = 0.5
 
     def __init__(self, start_pose: sm.SE3, scale=[0.1, 0.2, 0.1], color_name="blue", name: str = 'Brick'):
         self.name = name
         self.start_pose = start_pose 
         self.scale = scale
         self.color_name = color_name.lower()
-        colors_dict = {"red":[1.0, 0.0, 0.0, 0.1], "green":[0.0, 1.0, 0.0, 0.1], "blue":[0.0, 0.0, 1.0, 0.1], "yellow":[1.0, 1.0, 0.0, 0.1]}
+        colors_dict = {"red":[1.0, 0.0, 0.0, 0.1], "green":[0.0, 1.0, 0.0, Brick.alpha], "blue":[0.0, 0.0, 1.0, Brick.alpha], "yellow":[1.0, 1.0, 0.0, Brick.alpha]}
         self.color = colors_dict[self.color_name.lower()]
         self.obj = sg.Cuboid(scale=self.scale, pose=self.start_pose, color=self.color)
 

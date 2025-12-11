@@ -615,7 +615,7 @@ def plot_all_metrics_combined(panda_agent_1, panda_agent_2, global_limits_3d=Non
     
     for ax in [ax_qd_2, ax_cond_2, ax_height]:
         panda_agent_2.plot_collision_markers_time(ax, start_time=start_time, 
-                                                  end_time=end_time, marker_color='darkred')
+                                                  end_time=end_time, marker_color='red')
 
     # Plot inter-robot distance over time
     plot_inter_robot_distance(panda_agent_1, panda_agent_2, ax_distance, 
@@ -699,8 +699,8 @@ def plot_inter_robot_distance(robot1, robot2, ax=None, start_time=None, end_time
     distances = np.linalg.norm(ee1_interp - ee2_interp, axis=1)
     
     # Plot
-    ax.plot(t_common, distances, linewidth=2, color='purple', label='Inter-Robot Distance')
-    ax.axhline(0.2, linestyle='--', color='red', alpha=0.7, linewidth=2, 
+    ax.plot(t_common, distances, linewidth=1.5, color='purple', label='Inter-Robot Distance', alpha=0.9)
+    ax.axhline(0.2, linestyle='--', linewidth=1.5, color='red', alpha=0.7,
                label='Safety Threshold (0.2m)')
     
     # Highlight regions below threshold

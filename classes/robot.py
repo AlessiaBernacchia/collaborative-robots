@@ -241,8 +241,8 @@ class Robot_arm:
         if ee is None:
             ee, _ = self.get_trajectory()
 
-        ax.plot(ee[:,0], ee[:,2], linewidth=1.5, color=line_color, label=self.name)
-        ax.axhline(0, linestyle='--', color='brown', alpha=0.6, label="Base Level")
+        ax.plot(ee[:,0], ee[:,2], linewidth=1.5, color=line_color, label=self.name, alpha=0.8)
+        ax.axhline(0, linestyle='--', color='darkred', alpha=0.6, label="Base Level")
         ax.set_title("Side View (XZ Plane)", fontsize=f)
         ax.set_xlabel("X [m]")
         ax.set_ylabel("Z [m]")
@@ -267,8 +267,8 @@ class Robot_arm:
         if ee is None:
             ee, _ = self.get_trajectory()
 
-        ax.plot(ee[:,1], ee[:,2], linewidth=1.5, color=line_color, label=self.name)
-        ax.axhline(0, linestyle='--', color='brown', alpha=0.6, label="Base Level")
+        ax.plot(ee[:,1], ee[:,2], linewidth=1.5, color=line_color, label=self.name, alpha=0.8)
+        ax.axhline(0, linestyle='--',  color='darkred', alpha=0.6, label="Base Level")
         ax.set_title("Front View (YZ Plane)", fontsize=f)
         ax.set_xlabel("Y [m]")
         ax.set_ylabel("Z [m]")
@@ -293,10 +293,10 @@ class Robot_arm:
         if ee is None:
             ee, _ = self.get_trajectory()
 
-        ax.plot(ee[:,0], ee[:,1], linewidth=1.5, color=line_color, label=self.name)
+        ax.plot(ee[:,0], ee[:,1], linewidth=1.5, color=line_color, label=self.name, alpha=0.8)
         # ax.scatter(ee[0,0], ee[0,1], c='green', s=120, edgecolor='black', label='Pick')
         # ax.scatter(ee[-1,0], ee[-1,1], c='red', s=120, edgecolor='black', label='Place')
-        ax.axhline(0, linestyle='--', color='brown', alpha=0.6)
+        ax.axhline(0, linestyle='--', color='darkred', alpha=0.6)
         ax.set_title("Top View (XY Plane)", fontsize=f)
         ax.set_xlabel("X [m]")
         ax.set_ylabel("Y [m]")
@@ -530,15 +530,15 @@ class Robot_arm:
             show_plot = False
         
         # height wrt Z
-        ax.plot(time_data_plot, ee_z_plot, linewidth=1.5, color=line_color, label=f'{self.name} Height')
-        ax.axhline(0, linestyle='--', color='brown', alpha=0.6, label="Table Level" if ax.get_legend() is None else None)
+        ax.plot(time_data_plot,  ee_z_plot, linewidth=1.5, color=line_color, label=f'{self.name} Height', alpha=0.8)
+        ax.axhline(0, linestyle='--', color='darkred', alpha=0.6, label="Table Level" if ax.get_legend() is None else None)
 
         # Adds vertical lines as tasks' separators
         # flag to add label once in the legend
         has_label = False
         for t in task_end_markers:
             label = "Task End Boundary" if not has_label else None
-            ax.axvline(t, linestyle='--', color='red', alpha=0.4, label=label)
+            ax.axvline(t, linestyle='--', color='darkred', alpha=0.4, label=label)
             has_label = True
 
         if ax.get_title() == '':
@@ -562,7 +562,7 @@ class Robot_arm:
             return fig
 
     def plot_collision_markers_3d(self, axes, start_time=None, end_time=None, 
-                               marker_color='red', marker_size=100):
+                               marker_color='red', marker_size=100, alpha=0.6, linewidth=0.06):
         """
         Adds collision event markers to existing 3D trajectory views.
         
@@ -593,25 +593,24 @@ class Robot_arm:
         
         # Plot on each view
         ax_top, ax_side, ax_front = axes
-        
         # Top view (XY)
         ax_top.scatter(positions[:, 0], positions[:, 1], 
                     c=marker_color, s=marker_size, marker='x', 
-                    alpha=0.7, linewidths=2, zorder=10,
+                    alpha=alpha, linewidths=linewidth, zorder=10,
                     label=f'{self.name} Near-Collision')
         
         # Side view (XZ)
         ax_side.scatter(positions[:, 0], positions[:, 2], 
                         c=marker_color, s=marker_size, marker='x', 
-                        alpha=0.7, linewidths=2, zorder=10)
+                        alpha=alpha, linewidths=linewidth, zorder=10)
         
         # Front view (YZ)
         ax_front.scatter(positions[:, 1], positions[:, 2], 
                         c=marker_color, s=marker_size, marker='x', 
-                        alpha=0.7, linewidths=2, zorder=10)
+                        alpha=alpha, linewidths=linewidth, zorder=10)
 
     def plot_collision_markers_time(self, ax, start_time=None, end_time=None,
-                                    marker_color='red', alpha=0.3):
+                                    marker_color='red', alpha=0.6, linewidth=0.06, linestyle='-'):
         """
         Adds vertical lines at collision events on time-based plots.
         
@@ -640,6 +639,6 @@ class Robot_arm:
         for t in relative_times:
             if t >= 0:  # Only plot if within the time window
                 label = f'{self.name} Near-Collision' if not has_label else None
-                ax.axvline(t, linestyle=':', color=marker_color, alpha=alpha, 
-                        linewidth=2, label=label)
+                ax.axvline(t, linestyle=linestyle, color=marker_color, alpha=alpha, 
+                        linewidth=linewidth, label=label)
                 has_label = True
