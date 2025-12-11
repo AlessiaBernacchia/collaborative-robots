@@ -11,6 +11,9 @@ from matplotlib.gridspec import GridSpec
 import time
 import os
 
+GAIN = 2.5
+DT = 0.01
+
 PLOTS_DIR = './plots'
 
 # TASK INITIALIZATIONS
@@ -401,9 +404,9 @@ def run_task(env: swift.Swift, robots: List[Robot_arm], bricks: List[Brick], tow
     # initialize the sensor
     sensor = Sensor(env, bricks=bricks, towers=towers, robots=robots)
     # initialize the controller of the robot  
-    controller = Controller(env) 
+    controller = Controller(env, gain=GAIN) 
     # initialize the task manager
-    task_manager = TaskManager(env, sensor, robots=robots, controller=controller)
+    task_manager = TaskManager(env, sensor, robots=robots, controller=controller, dt=DT)
 
     start_time = time.time()
     task_manager.start()
@@ -688,38 +691,3 @@ if __name__ == "__main__":
                 "\nSELECTION (e.g.: '1a', '1b', ...):" \
                 "\n\ttask:")
     task(name)
-
-
-    # # create the swift enviroment
-    # env = swift.Swift()
-    # env.launch(realtime=True, comms="rtc", browser="browser")
-
-    # # initialize the task
-    # robots, bricks, towers = initialize_task_4a()
-
-    # # add elements to the environment
-    # for r in robots:
-    #     r.register(env)
-
-    # for b in bricks:
-    #     env.add(b.obj)
-
-    # # initialize the sensor
-    # sensor = Sensor(env, bricks=bricks, towers=towers, robots=robots)
-    # # initialize the controller of the robot  
-    # controller = Controller(env) 
-    # # initialize the task manager
-    # task_manager = TaskManager(env, sensor, robots=robots, controller=controller)
-
-    # start_time = time.time()
-    # task_manager.start()
-    # end_time=time.time()
-    # print(f'global time: {end_time-start_time}')
-
-    # global_range = global_limits(robots) 
-    # # fig = plot_all_metrics_combined(robots[0], robots[1], global_range, start_time, end_time, figsize=(17,20))
-    # # save_image(fig, 'plot_metrics_and_trajectory.png')
-    
-    # fig = plot_all_metrics_combined(robots[0], robots[1], global_range, start_time, end_time, figsize=(18,14))
-    # #save_image(fig, 'plot_metrics_and_trajectory.png')
-

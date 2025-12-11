@@ -15,7 +15,6 @@ from classes.sensor import Sensor
 from classes.controller import Controller
 
 # higher it is, higher the velocity of the robots
-DT = 0.05
 
 def get_index_by_name(obj_list, target_name):
     """
@@ -32,13 +31,13 @@ def get_index_by_name(obj_list, target_name):
     raise TypeError("Name specified doesn't correspond to any elements.")
 
 class TaskManager:
-    def __init__(self, env:swift.Swift, sensor: Sensor, robots: List[Robot_arm], controller: Controller, velocity: float = 0.05):
+    def __init__(self, env:swift.Swift, sensor: Sensor, robots: List[Robot_arm], controller: Controller, dt: float = 0.05):
         self.__env = env
         self._sensor = sensor
         self._robots = robots
         self._controller = controller
 
-        self.__velocity = velocity
+        self.__dt = dt
     
     # general Sensor's requests
     def ask_free_bricks(self) -> List[Brick]:
@@ -309,16 +308,16 @@ class TaskManager:
         
         while self.has_work_remaining(robot):
             robot.start_task()
-            result = self.place_one_brick(robot, dt=self.__velocity)
+            result = self.place_one_brick(robot, dt=self.__dt)
             robot.task_completed()
             
             if result is not None:  # Task not completed -> retry
                 # wait a moment before recheck the resources available
-                sleep(self.__velocity*30)
+                sleep(self.__dt*30)
             # finish task
 
         # when it finish the tasks -> rest pose
-        self._controller.rest(robot, self, dt=self.__velocity)
+        self._controller.rest(robot, self, dt=self.__dt)
     
     def start(self):        
         # Create two threads, one for each robot

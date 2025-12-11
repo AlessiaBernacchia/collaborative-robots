@@ -34,10 +34,10 @@ class Controller:
     Translates high-level tasks into low-level joint velocity commands 
     and executes movement, checking precedence with the Task Manager during conflicts.
     """
-    def __init__(self, env: swift.Swift):
+    def __init__(self, env: swift.Swift, gain: float = 4):
         self.__env = env
         self.max_safe_height = MAX_SAFE_LIFT_HEIGHT
-        self.gain = 4    
+        self.gain = gain    
     
     def generate_path_points(self, brick_to_pick: Brick | None, target_tower: Tower | None = None):
         """
@@ -136,7 +136,7 @@ class Controller:
             
             # if it cannot move, the robot will stay away from the danger area.
             waiting_counter = 0
-            waiting_t = 20*dt
+            waiting_t = 100*dt
             while not can_move and waiting_counter <= waiting_t:
                 qdot_avoidance, error_avoidance, cond_number_avoidance = self.compute_qdot(agent, target_pose@agent._safe_transition)
                 agent.apply_velocity_cmd(qdot_avoidance, cond_number_avoidance, error_avoidance)
