@@ -88,9 +88,12 @@ class TaskManager:
         """
         base_pos = agent.base_position
         brick_pos = brick.pose()
-        brick_pos = brick_pos[:3, 3]       
+        brick_pos = brick_pos[:3, 3]
+
+        base_pos_xy = base_pos[:2]
+        brick_pos_xy = brick_pos[:2]       
         
-        return np.linalg.norm(base_pos - brick_pos)
+        return np.linalg.norm(base_pos_xy - brick_pos_xy)
     
     def available_brick(self, agent: Robot_arm) -> Brick | None:
         """
@@ -216,16 +219,19 @@ class TaskManager:
 
         # if there is no brick, return nothing
         if brick_to_pick is None:
+            print(f'{agent.name} : no bricks to pick available')
             return None
 
         # try to lock the brick
         if not brick_to_pick.try_lock(agent.name):
+            print(f'{agent.name} : error, brick not lockable')
             return None
         
         # calculate the path points
         way_points_brick = self._controller.generate_path_points(brick_to_pick)
 
         if way_points_brick is None:
+            print(f'{agent.name} : error, no way points')
             return None
         
         # 1. go to pick the brick
@@ -242,11 +248,12 @@ class TaskManager:
         target_tower = self.search_uncomplete_tower(brick_to_pick)
         while target_tower is None:
             target_tower = self.search_uncomplete_tower(brick_to_pick)
-            print(f"{agent.name}: can't find available tower")
+            # print(f"{agent.name}: can't find available tower")
             sleep(dt*5)
 
             if not self.has_work_remaining(agent):
                 # get down the brick
+                print(f'{agent.name} : No work remaining, leave down the brick')
                 self._controller.move_to_pose(agent, way_points_brick[1], brick=brick_to_pick, task_manager=self, dt = dt)
                 # fake parallel placing of the brick
                 brick_to_pick.placing_orientation()
@@ -254,10 +261,12 @@ class TaskManager:
                 brick_to_pick.unlock(agent.name)
 
                 self._controller.rest(agent, self, dt=dt)
+                print(f"{agent.name} : No work remaining, let's go to rest")
                 return None
             
         # try to lock the tower
         if not target_tower.try_lock(agent.name):
+            print(f'{agent.name} : error, tower not lockable')
             return None
                     
         # 2. move and place the brick        
@@ -278,6 +287,7 @@ class TaskManager:
         # 3. move to safe height
         self._controller.move_to_pose(agent, way_points[-1], task_manager=self, dt = dt)
         target_tower.unlock(agent.name)
+        print(f'{agent.name} : BRICK PLACED')
 
         
     # parallel methods executions
@@ -314,10 +324,12 @@ class TaskManager:
             if result is not None:  # Task not completed -> retry
                 # wait a moment before recheck the resources available
                 sleep(self.__dt*30)
+                print(f'{robot.name} : Still be work to do, but not reachable resources')
             # finish task
 
         # when it finish the tasks -> rest pose
         self._controller.rest(robot, self, dt=self.__dt)
+        print(f'{robot.name} : Goodbye!!')
     
     def start(self):        
         # Create two threads, one for each robot

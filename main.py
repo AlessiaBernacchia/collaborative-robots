@@ -117,21 +117,26 @@ def initialize_task_2a() -> Tuple[List[Robot_arm], List[Brick], List[Tower]]:
     brick_A1 = Brick(sm.SE3(0.0, 0.5, 0.05))
     brick_A2 = Brick(sm.SE3(0.0, 0.5, 0.15))
     brick_A3 = Brick(sm.SE3(0.0, 0.5, 0.25))
+    brick_A4 = Brick(sm.SE3(0.0, 0.5, 0.35))
 
-    brick_B1 = Brick(sm.SE3(0.11, 0.5, 0.05))
-    brick_B2 = Brick(sm.SE3(0.11, 0.5, 0.15))
-    brick_B3 = Brick(sm.SE3(0.11, 0.5, 0.25))
+    brick_B1 = Brick(sm.SE3(-0.11, 0.5, 0.05))
+    brick_B2 = Brick(sm.SE3(-0.11, 0.5, 0.15))
+    brick_B3 = Brick(sm.SE3(-0.11, 0.5, 0.25))
+    brick_B4 = Brick(sm.SE3(-0.11, 0.5, 0.35))
 
-    brick_C1 = Brick(sm.SE3(0.22, 0.5, 0.05))
-    brick_C2 = Brick(sm.SE3(0.22, 0.5, 0.15))
-    brick_C3 = Brick(sm.SE3(0.22, 0.5, 0.25))
+    brick_C1 = Brick(sm.SE3(-0.22, 0.5, 0.05))
+    brick_C2 = Brick(sm.SE3(-0.22, 0.5, 0.15))
+    brick_C3 = Brick(sm.SE3(-0.22, 0.5, 0.25))
+    brick_C4 = Brick(sm.SE3(-0.22, 0.5, 0.35))
 
-    brick_D1 = Brick(sm.SE3(-0.11, 0.5, 0.05))
-    brick_D2 = Brick(sm.SE3(-0.11, 0.5, 0.15))
-    brick_D3 = Brick(sm.SE3(-0.11, 0.5, 0.25))
+    brick_D1 = Brick(sm.SE3(0.11, 0.5, 0.05))
+    brick_D2 = Brick(sm.SE3(0.11, 0.5, 0.15))
+    
 
-    bricks = [brick_A1, brick_A2, brick_A3, brick_B1, brick_B2, brick_B3,
-              brick_C1, brick_C2, brick_C3, brick_D1, brick_D2, brick_D3]
+    bricks = [brick_A1, brick_A2, brick_A3, brick_A4,
+              brick_B1, brick_B2, brick_B3, brick_B4,
+              brick_C1, brick_C2, brick_C3, brick_C4,
+              brick_D1, brick_D2]
 
     # towers
     base_A = sm.SE3(0.0, 0.2, 0.05)
@@ -218,18 +223,18 @@ def initialize_task_3a() -> Tuple[List[Robot_arm], List[Brick], List[Tower]]:
     # bricks
     brick_A1 = Brick(sm.SE3(0.0, 0.5, 0.05), color_name="blue")
     brick_A2 = Brick(sm.SE3(0.0, 0.5, 0.15), color_name="green")
+    brick_A3 = Brick(sm.SE3(0.0, 0.5, 0.25), color_name="blue")
+    brick_A4 = Brick(sm.SE3(0.0, 0.5, 0.35), color_name="green")
+    brick_A5 = Brick(sm.SE3(0.0, 0.5, 0.45), color_name="blue")
 
-    brick_B1 = Brick(sm.SE3(0.11, 0.5, 0.05), color_name="green")
-    brick_B2 = Brick(sm.SE3(0.11, 0.5, 0.15), color_name="blue")
+    brick_B1 = Brick(sm.SE3(-0.11, 0.5, 0.05), color_name="green")
+    brick_B2 = Brick(sm.SE3(-0.11, 0.5, 0.15), color_name="blue")
+    brick_B3 = Brick(sm.SE3(-0.11, 0.5, 0.25), color_name="green")
+    brick_B4 = Brick(sm.SE3(-0.11, 0.5, 0.35), color_name="blue")
+    brick_B5 = Brick(sm.SE3(-0.11, 0.5, 0.45), color_name="green")
 
-    brick_C1 = Brick(sm.SE3(0.22, 0.5, 0.05), color_name="blue")
-    brick_C2 = Brick(sm.SE3(0.22, 0.5, 0.15), color_name="green")
-
-    brick_D1 = Brick(sm.SE3(-0.11, 0.5, 0.05), color_name="green")
-    brick_D2 = Brick(sm.SE3(-0.11, 0.5, 0.15), color_name="blue")
-
-    bricks = [brick_A1, brick_A2, brick_B1, brick_B2,
-              brick_C1, brick_C2, brick_D1, brick_D2]
+    bricks = [brick_A1, brick_A2, brick_A3, brick_A4, brick_A5,
+              brick_B1, brick_B2, brick_B3, brick_B4, brick_B5]
 
     # towers
     base_A = sm.SE3(0.0, 0.2, 0.05)
@@ -307,21 +312,21 @@ def initialize_task_4a() -> Tuple[List[Robot_arm], List[Brick], List[Tower]]:
     brick_A1 = Brick(sm.SE3(0.0, 0.5, 0.05), color_name="green")
     brick_A2 = Brick(sm.SE3(0.0, 0.5, 0.15), color_name="blue")
     brick_A3 = Brick(sm.SE3(0.0, 0.5, 0.25), color_name="red")
+    brick_A4 = Brick(sm.SE3(0.0, 0.5, 0.35), color_name="green")
 
-    brick_B1 = Brick(sm.SE3(0.11, 0.5, 0.05), color_name="green")
-    brick_B2 = Brick(sm.SE3(0.11, 0.5, 0.15), color_name="red")
-    brick_B3 = Brick(sm.SE3(0.11, 0.5, 0.25), color_name="blue")
+    brick_B1 = Brick(sm.SE3(-0.11, 0.5, 0.05), color_name="green")
+    brick_B2 = Brick(sm.SE3(-0.11, 0.5, 0.15), color_name="red")
+    brick_B3 = Brick(sm.SE3(-0.11, 0.5, 0.25), color_name="blue")
+    brick_B4 = Brick(sm.SE3(-0.11, 0.5, 0.35), color_name="red")
 
-    brick_C1 = Brick(sm.SE3(0.22, 0.5, 0.05), color_name="red")
-    brick_C2 = Brick(sm.SE3(0.22, 0.5, 0.15), color_name="blue")
-    brick_C3 = Brick(sm.SE3(0.22, 0.5, 0.25), color_name="green")
+    brick_C1 = Brick(sm.SE3(-0.22, 0.5, 0.05), color_name="red")
+    brick_C2 = Brick(sm.SE3(-0.22, 0.5, 0.15), color_name="blue")
+    brick_C3 = Brick(sm.SE3(-0.22, 0.5, 0.25), color_name="green")
+    brick_C4 = Brick(sm.SE3(-0.22, 0.5, 0.35), color_name="blue")
 
-    brick_D1 = Brick(sm.SE3(-0.11, 0.5, 0.05), color_name="green")
-    brick_D2 = Brick(sm.SE3(-0.11, 0.5, 0.15), color_name="red")
-    brick_D3 = Brick(sm.SE3(-0.11, 0.5, 0.25), color_name="blue")
-
-    bricks = [brick_A1, brick_A2, brick_A3, brick_B1, brick_B2, brick_B3,
-              brick_C1, brick_C2, brick_C3, brick_D1, brick_D2, brick_D3]
+    bricks = [brick_A1, brick_A2, brick_A3, brick_A4,
+              brick_B1, brick_B2, brick_B3, brick_B4,
+              brick_C1, brick_C2, brick_C3, brick_C4]
 
     # towers
     base_A = sm.SE3(0.0, 0.2, 0.05)
@@ -446,6 +451,10 @@ def task(name: str, all_plots: bool = False, global_plot: bool = True, save: boo
         robots, bricks, towers = initialize_task_4a()
     elif name == '4b':
         robots, bricks, towers = initialize_task_4b()
+    else:
+        print('Invalid input ...')
+        task(name, all_plots, global_plot, save, dir_path)
+        return None
 
     start_time, end_time = run_task(env, robots, bricks, towers)
 
@@ -689,5 +698,5 @@ if __name__ == "__main__":
                 "\n- task '3b': two panda robot that build two towers following a pattern"
                 "\n- task '4b': two panda robot that build a wall following a pattern" \
                 "\nSELECTION (e.g.: '1a', '1b', ...):" \
-                "\n\ttask:")
+                "\n\ttask: ")
     task(name)
