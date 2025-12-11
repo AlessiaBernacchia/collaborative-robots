@@ -53,24 +53,18 @@ class Sensor:
         for brick in self.bricks:
             brick.current_pose = brick.obj.T
 
-        # here we could also update robot current poses to control the distances and avoid collisions
-        # for robot in self.robots:
-        #     robot.current_pose = robot._robot.fkine(robot.q)
-
-    def check_collision(self, agent:Robot_arm, safe_dist: float = 0.2):
+    def check_collision(self, safe_dist: float = 0.2):
         """
         check if the two robots' end-factors are in a 
         dangerous distance between each others
         """
         if len(self.robots) == 1:
             return False
-        # verify the agent's end factor is not in collision with others
-        for r in self.robots:
-            if r.name != agent.name:
-                distance = np.linalg.norm(agent.end_factor_position()-r.end_factor_position())
-                if distance <= safe_dist:
-                    return True
-            return False
+        
+        distance = np.linalg.norm(self.robots[0].end_factor_position()-self.robots[1].end_factor_position())
+        if distance <= safe_dist:
+            return True
+        return False
         
     
     def get_current_robot_target_distances(self):

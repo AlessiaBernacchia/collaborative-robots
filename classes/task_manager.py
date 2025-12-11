@@ -137,7 +137,7 @@ class TaskManager:
         otherwise it return False, causing the retrocession of the agent
         """
 
-        if self._sensor.check_collision(agent):
+        if self._sensor.check_collision():
             ROBOT_WITH_PRECEDENCE_NAME = self._robots[0].name
 
             robot_target_distances = list(self._sensor.get_current_robot_target_distances())
