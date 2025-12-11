@@ -1,6 +1,6 @@
 from typing import List, Tuple
 
-from time import sleep
+from time import sleep, time
 import swift
 import spatialmath as sm
 import spatialgeometry as sg
@@ -15,7 +15,7 @@ from classes.sensor import Sensor
 from classes.controller import Controller
 
 # higher it is, higher the velocity of the robots
-DT = 0.05
+DT = 0.01
 
 def get_index_by_name(obj_list, target_name):
     """
@@ -66,14 +66,20 @@ class TaskManager:
             return None
         return uncomplete_towers
     
-    def search_uncomplete_tower(self) -> List[Tower] | None:
+    def search_uncomplete_tower(self, brick: Brick = None) -> List[Tower] | None:
         """
         search between the towers in the environment one that is incomplete and unlocked
         """
+        brick_color_name = "blue" if brick is None else brick.color_name
         available_towers = self._sensor.get_available_towers()
         if len(available_towers) == 0:
             return None
-        return available_towers[0]
+        
+        for tower in available_towers:
+            if tower.color_name == brick_color_name:
+                return tower
+            
+        return None 
     
     def _calculate_base_to_brick_distance(self, agent: Robot_arm, brick: Brick) -> float:
         """
@@ -149,6 +155,20 @@ class TaskManager:
             else:
                 # has the precedence only if it is the nearest to the target pose
                 can_move = future_robot_distance < min_other_distance
+
+            # save collision information
+            current_time = time()
+            distance_between_robots = self._sensor.get_distance_between_robots()
+            
+            for robot in self._robots:
+                had_precedence = (robot.name == agent.name and can_move)
+                robot.record_collision_event(
+                    timestamp=current_time,
+                    position=robot.end_factor_position(),
+                    distance=distance_between_robots,
+                    had_precedence=had_precedence
+                )
+                
             return can_move
         
         # no collision -> safe
@@ -218,9 +238,9 @@ class TaskManager:
         self._controller.move_to_pose(agent, way_points_brick[2], brick=brick_to_pick, task_manager=self, dt = dt)
         
         # search uncompleted and not locked tower
-        target_tower = self.search_uncomplete_tower()
+        target_tower = self.search_uncomplete_tower(brick_to_pick)
         while target_tower is None:
-            target_tower = self.search_uncomplete_tower()
+            target_tower = self.search_uncomplete_tower(brick_to_pick)
             print(f"{agent.name}: can't find available tower")
             sleep(dt*5)
 
@@ -232,7 +252,7 @@ class TaskManager:
                 # release the locks
                 brick_to_pick.unlock(agent.name)
 
-                self._controller.rest(agent, self, dt=DT)
+                self._controller.rest(agent, self, dt=dt)
                 return None
             
         # try to lock the tower
@@ -315,5 +335,3 @@ class TaskManager:
         # Wait for both robots to complete their tasks
         for t in threads:
             t.join()
-        
-        

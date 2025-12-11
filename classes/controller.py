@@ -111,7 +111,7 @@ class Controller:
         pos = robot.fkine(robot.q)
         brick.update_position(pos)
     
-    def move_to_pose(self, agent: Robot_arm, target_pose: sm.SE3, task_manager, brick: Brick = None, dt: float = 0.01, tol: float = 0.001):
+    def move_to_pose(self, agent: Robot_arm, target_pose: sm.SE3, task_manager, brick: Brick = None, dt: float = 0.01, tol: float = 0.001, waiting_t: float = 2.0):
         """
         moves the robot end-effector to a target pose,
         if brick is specified, the robot drags it
@@ -128,10 +128,30 @@ class Controller:
             can_move = task_manager.resolve_collision_precedence(agent, error_norm)
             # select the q for the movement
             qdot_final = qdot_initial
-            if not can_move:
-                qdot_avoidance, error, _ = self.compute_qdot(agent, target_pose@agent._safe_transition)
-                qdot_final = qdot_avoidance
-            # move
+
+            # if not can_move:
+            #     qdot_avoidance, error, _ = self.compute_qdot(agent, target_pose@agent._safe_transition)
+            #     qdot_final = qdot_avoidance
+            # # move
+            
+            # if it cannot move, the robot will stay away from the danger area.
+            waiting_counter = 0
+            while not can_move and waiting_counter <= waiting_t:
+                qdot_avoidance, error_avoidance, cond_number_avoidance = self.compute_qdot(agent, target_pose@agent._safe_transition)
+                agent.apply_velocity_cmd(qdot_avoidance, cond_number_avoidance, error_avoidance)
+                
+                if brick is not None:
+                    self.drag_brick(brick, agent._robot)
+                    
+                self.__env.step(dt)
+                waiting_counter += dt
+            
+            # reset the distance and start next iteration if it entered 
+            # in the avoidance procedure
+            if waiting_counter >= waiting_t:
+                agent.reset_distance()
+                continue
+
             agent.apply_velocity_cmd(qdot_final, cond_number, error)
             
             if brick is not None:

@@ -78,7 +78,16 @@ class Sensor:
         Return the distance between the end factors and them target poses
         """
         return [r.distance for r in self.robots]
-        #return self.robots[0].distance, self.robots[1].distance
+    
+    def get_distance_between_robots(self):
+        """
+        Returns the Euclidean distance between the two robots' end-effectors.
+        """
+        if len(self.robots) < 2:
+            return np.inf
+        return np.linalg.norm(
+            self.robots[0].end_factor_position() - self.robots[1].end_factor_position()
+        )
 
         
     

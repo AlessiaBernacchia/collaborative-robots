@@ -23,7 +23,7 @@ def initialize_task_1() -> Tuple[List[Robot_arm], List[Brick], List[Tower]]:
     :rtype: Tuple[List[Robot_arm], List[Brick], List[Tower]]
     """
     # robot
-    panda_agent = Robot_arm("panda", sm.SE3.Rz(0), sm.SE3.Tx(-0.5))
+    panda_agent = Robot_arm("panda", sm.SE3.Rz(0), sm.SE3.Tx(-0.2))
     panda_agent.set_position(-0.70, 0.0, 0.0)
     panda_agent.modify_orientation_base()
 
@@ -59,11 +59,11 @@ def initialize_task_2() -> Tuple[List[Robot_arm], List[Brick], List[Tower]]:
     :rtype: Tuple[List[Robot_arm], List[Brick], List[Tower]]
     """
     # robot
-    panda_agent = Robot_arm("panda", sm.SE3.Rz(0), sm.SE3.Tx(-0.5))
+    panda_agent = Robot_arm("panda", sm.SE3.Rz(0), sm.SE3.Tx(-0.2))
     panda_agent.set_position(-0.70, 0.0, 0.0)
     panda_agent.modify_orientation_base()
 
-    panda_agent_2 = Robot_arm("panda_2", sm.SE3.Rz(np.pi), sm.SE3.Tx(0.5))
+    panda_agent_2 = Robot_arm("panda_2", sm.SE3.Rz(np.pi), sm.SE3.Tx(0.2))
     panda_agent_2.set_position(0.70, 0.0, 0.0)
     panda_agent_2.modify_orientation_base()
 
@@ -93,17 +93,17 @@ def initialize_task_2() -> Tuple[List[Robot_arm], List[Brick], List[Tower]]:
 def initialize_task_3() -> Tuple[List[Robot_arm], List[Brick], List[Tower]]:
     """
     materials occured for
-    task 1: two panda robot that build a wall
+    task 3: two panda robot that build a wall
     
     :return: three lists, one of the agents, one of the bricks in the environment and one for the towers to build
     :rtype: Tuple[List[Robot_arm], List[Brick], List[Tower]]
     """
     # robot
-    panda_agent = Robot_arm("panda", sm.SE3.Rz(0), sm.SE3.Tx(-0.5))
+    panda_agent = Robot_arm("panda", sm.SE3.Rz(0), sm.SE3.Tx(-0.2))
     panda_agent.set_position(-0.70, 0.0, 0.0)
     panda_agent.modify_orientation_base()
 
-    panda_agent_2 = Robot_arm("panda_2", sm.SE3.Rz(np.pi), sm.SE3.Tx(0.5))
+    panda_agent_2 = Robot_arm("panda_2", sm.SE3.Rz(np.pi), sm.SE3.Tx(0.2))
     panda_agent_2.set_position(0.70, 0.0, 0.0)
     panda_agent_2.modify_orientation_base()
 
@@ -143,6 +143,51 @@ def initialize_task_3() -> Tuple[List[Robot_arm], List[Brick], List[Tower]]:
 
     return robots, bricks, towers
 
+def initialize_task_4() -> Tuple[List[Robot_arm], List[Brick], List[Tower]]:
+    """
+    materials occured for
+    task 4: two panda robot that build a wall following a pattern
+    
+    :return: three lists, one of the agents, one of the bricks in the environment and one for the towers to build
+    :rtype: Tuple[List[Robot_arm], List[Brick], List[Tower]]
+    """
+    # robot
+    panda_agent = Robot_arm("panda", sm.SE3.Rz(0), sm.SE3.Tx(-0.2))
+    panda_agent.set_position(-0.70, 0.0, 0.0)
+    panda_agent.modify_orientation_base()
+
+    panda_agent_2 = Robot_arm("panda_2", sm.SE3.Rz(np.pi), sm.SE3.Tx(0.2))
+    panda_agent_2.set_position(0.70, 0.0, 0.0)
+    panda_agent_2.modify_orientation_base()
+
+    robots = [panda_agent, panda_agent_2]
+
+    # bricks
+    brick_A = Brick(sm.SE3(0.0, 0.5, 0.15), color_name="Green")
+    brick_B = Brick(sm.SE3(0.0, 0.5, 0.05), color_name="Red")
+    brick_C = Brick(sm.SE3(0.11, 0.5, 0.15), color_name="Blue")
+    brick_D = Brick(sm.SE3(0.11, 0.5, 0.05), color_name="Blue")
+
+    brick_E = Brick(sm.SE3(0.22, 0.5, 0.15), color_name="green")
+    brick_F = Brick(sm.SE3(0.22, 0.5, 0.05), color_name="green")
+    brick_G = Brick(sm.SE3(-0.11, 0.5, 0.15), color_name="Red")
+    brick_H = Brick(sm.SE3(-0.11, 0.5, 0.05), color_name="Blue")
+
+    bricks = [brick_A, brick_B, brick_C, brick_D, brick_E, brick_F, brick_G, brick_H]
+
+    # towers
+    base_A = sm.SE3(0.0, 0.2, 0.05)
+    tower_A = Tower(base_pose=base_A, max_height=3, color_name = "Blue")
+
+    base_B = sm.SE3(0.0, -0.2, 0.05)
+    tower_B = Tower(base_pose=base_B, max_height=3, color_name = "Green")
+
+    base_C = sm.SE3(0.0, 0.0, 0.05)
+    tower_C = Tower(base_pose=base_C, max_height=2, color_name = "Red")
+
+    towers = [tower_A, tower_B, tower_C]
+
+    return robots, bricks, towers
 
 def save_image(fig, file_name, dir_path=PLOTS_DIR):
     """
@@ -201,8 +246,8 @@ def plot_all_metrics_combined(panda_agent_1, panda_agent_2, global_limits_3d=Non
     """
     fig = plt.figure(figsize=figsize) 
     
-    # Define the grid
-    gs = GridSpec(5, 6, figure=fig, hspace=1, wspace=0.6)
+    # Define the grid 
+    gs = GridSpec(7, 6, figure=fig, hspace=0.8, wspace=0.6)
 
     # Metrics (qd and cond) 
     # for robot 1
@@ -214,11 +259,13 @@ def plot_all_metrics_combined(panda_agent_1, panda_agent_2, global_limits_3d=Non
     
     # Height across time
     ax_height = fig.add_subplot(gs[2, 0:6]) # Altezza vs Tempo (su 3 colonne)
+    # Inter-robot distance
+    ax_distance = fig.add_subplot(gs[3, 0:6], sharex=ax_height)
 
-    # 3d trajectory (Views XY, XZ, YZ)
-    ax_xy_traj = fig.add_subplot(gs[3:5, 0:2]) # Top View
-    ax_xz_traj = fig.add_subplot(gs[3:5, 2:4], sharex=ax_xy_traj) # Side View
-    ax_yz_traj = fig.add_subplot(gs[3:5, 4:6], sharex=ax_xy_traj) # Front View
+    # 3d trajectory (Views XY, XZ, YZ) 
+    ax_xy_traj = fig.add_subplot(gs[4:7, 0:2])  # Righe 4-6
+    ax_xz_traj = fig.add_subplot(gs[4:7, 2:4])  # Righe 4-6
+    ax_yz_traj = fig.add_subplot(gs[4:7, 4:6])  # Righe 4-6
     
     # Robot 1: Plot metrics on axes [ax_qd_1, ax_cond_1]
     panda_agent_1.plot_performance_metrics(axes=[ax_qd_1, ax_cond_1], qd_color='blue', cond_color='darkblue')
@@ -232,23 +279,37 @@ def plot_all_metrics_combined(panda_agent_1, panda_agent_2, global_limits_3d=Non
 
     # Height across time
     panda_agent_1.plot_height_over_time(ax=ax_height, line_color='blue', 
-                                        start_time=start_time, end_time=end_time, global_limits=global_limits_3d, 
-                                        f=f)
+                                        start_time=start_time, end_time=end_time, 
+                                        global_limits=global_limits_3d, f=f)
     panda_agent_2.plot_height_over_time(ax=ax_height, line_color='orange', 
-                                        start_time=start_time, end_time=end_time, global_limits=global_limits_3d, 
-                                        f=f)
+                                        start_time=start_time, end_time=end_time, 
+                                        global_limits=global_limits_3d, f=f)
+    
+    # Collision markers on time-based plots
+    for ax in [ax_qd_1, ax_cond_1, ax_height]:
+        panda_agent_1.plot_collision_markers_time(ax, start_time=start_time, 
+                                                  end_time=end_time, marker_color='red')
+    
+    for ax in [ax_qd_2, ax_cond_2, ax_height]:
+        panda_agent_2.plot_collision_markers_time(ax, start_time=start_time, 
+                                                  end_time=end_time, marker_color='darkred')
+
+    # Plot inter-robot distance over time
+    plot_inter_robot_distance(panda_agent_1, panda_agent_2, ax_distance, 
+                              start_time=start_time, end_time=end_time)
 
     ax_qd_1.set_xlabel('') 
     ax_qd_2.set_xlabel('') 
-    ax_height.set_xlabel('Time [s]')
+    ax_height.set_xlabel('')
+    ax_distance.set_xlabel('Time [s]')
     
     for ax in axes_traj_3d:
         ax.set_aspect('equal', adjustable='box')
-        ax.legend(loc='lower right')
+        ax.legend(loc='lower right', fontsize=8)
     
-    axes = [ax_cond_1, ax_cond_2, ax_height]
+    axes = [ax_cond_1, ax_cond_2, ax_height, ax_distance]
     for ax in axes:
-        ax.legend(loc='lower right')
+        ax.legend(loc='lower right', fontsize=8)
 
     ax_cond_1.legend([])
     ax_cond_2.legend([])
@@ -260,13 +321,75 @@ def plot_all_metrics_combined(panda_agent_1, panda_agent_2, global_limits_3d=Non
 
     return fig
 
+def plot_inter_robot_distance(robot1, robot2, ax, start_time=None, end_time=None):
+    """
+    Plot the distance between two robots' end-effectors over time.
+    """
+    # Get trajectories
+    ee1, t1 = robot1.get_trajectory()
+    ee2, t2 = robot2.get_trajectory()
+    
+    # Use the common time base (should be synchronized)
+    # Find common time range
+    if start_time is None:
+        start_time = max(t1[0], t2[0])
+    if end_time is None:
+        end_time = min(t1[-1], t2[-1])
+    
+    # Filter data
+    mask1 = (t1 >= start_time) & (t1 <= end_time)
+    mask2 = (t2 >= start_time) & (t2 <= end_time)
+    
+    t1_filtered = t1[mask1] - start_time
+    t2_filtered = t2[mask2] - start_time
+    ee1_filtered = ee1[mask1]
+    ee2_filtered = ee2[mask2]
+    
+    # Interpolate to common time base (use the finer one)
+    if len(t1_filtered) > len(t2_filtered):
+        t_common = t1_filtered
+        # Interpolate ee2
+        ee2_interp = np.array([
+            np.interp(t_common, t2_filtered, ee2_filtered[:, i]) 
+            for i in range(3)
+        ]).T
+        ee1_interp = ee1_filtered
+    else:
+        t_common = t2_filtered
+        # Interpolate ee1
+        ee1_interp = np.array([
+            np.interp(t_common, t1_filtered, ee1_filtered[:, i]) 
+            for i in range(3)
+        ]).T
+        ee2_interp = ee2_filtered
+    
+    # Calculate distances
+    distances = np.linalg.norm(ee1_interp - ee2_interp, axis=1)
+    
+    # Plot
+    ax.plot(t_common, distances, linewidth=2, color='purple', label='Inter-Robot Distance')
+    ax.axhline(0.2, linestyle='--', color='red', alpha=0.7, linewidth=2, 
+               label='Safety Threshold (0.2m)')
+    
+    # Highlight regions below threshold
+    below_threshold = distances < 0.2
+    if np.any(below_threshold):
+        ax.fill_between(t_common, 0, distances, where=below_threshold, 
+                        alpha=0.3, color='red', label='Collision Risk Zone')
+    
+    ax.set_ylabel('Distance [m]')
+    ax.set_title('Inter-Robot Distance Over Time', fontsize=12)
+    ax.grid(True, alpha=0.3)
+    ax.legend(loc='best')
+    ax.set_xlim(0, t_common[-1])
+
 if __name__ == "__main__":
     # create the swift enviroment
     env = swift.Swift()
     env.launch(realtime=True, comms="rtc", browser="browser")
     
     # initialize the task
-    robots, bricks, towers = initialize_task_2()
+    robots, bricks, towers = initialize_task_4()
 
     # add elements to the environment
     for r in robots:
@@ -287,7 +410,10 @@ if __name__ == "__main__":
     end_time=time.time()
     print(f'global time: {end_time-start_time}')
 
-
-    #global_range = global_limits(robots) 
-    # fig = plot_all_metrics_combined(panda_agent, panda_agent_2, global_range, start_time, end_time, figsize=(17,20))
+    global_range = global_limits(robots) 
+    # fig = plot_all_metrics_combined(robots[0], robots[1], global_range, start_time, end_time, figsize=(17,20))
     # save_image(fig, 'plot_metrics_and_trajectory.png')
+    
+    fig = plot_all_metrics_combined(robots[0], robots[1], global_range, start_time, end_time, figsize=(18,14))
+    #save_image(fig, 'plot_metrics_and_trajectory.png')
+
