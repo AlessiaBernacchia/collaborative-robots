@@ -443,6 +443,7 @@ def task(name: str, all_plots: bool = False, global_plot: bool = True, save: boo
     env.launch(realtime=True, comms="rtc", browser="browser")
     
     print('===============================================================')
+    print(f'\t\tTASK {name}: ', end='')
     if name == '1a':
         print('ONE PANDA BUILD ONE TOWER')
         robots, bricks, towers = initialize_task_1a()
@@ -481,34 +482,23 @@ def task(name: str, all_plots: bool = False, global_plot: bool = True, save: boo
 
     task_directory = os.path.join(dir_path, f'_{name}')
 
-    if len(robots) == 1:
-        if global_plot:
-            # TODO global plot
-            views_fig = robots[0].plot_3d_trajectory_views(global_limits=global_range)
-            height_fig = robots[0].plot_height_over_time(start_time=start_time, end_time=end_time, global_limits=global_range)
-            joint_fig = robots[0].plot_performance_metrics(start_time=start_time, end_time=end_time)
-            if save:
-                save_image(views_fig, f'3d_trajectory_views_{name}.png', task_directory)
-                save_image(height_fig, f'plot_height_over_time_{name}.png', task_directory)
-                save_image(joint_fig, f'plot_joints_metrics_{name}.png', task_directory)
     
-                #save_image(glob_fig, 'plot_metrics_and_trajectory.png', task_directory)
-                pass
-    else:
-        if global_plot:
-            glob_fig = plot_all_metrics_combined(robots[0], robots[1], global_range, start_time=start_time, end_time=end_time)
-            coll_fig = plot_inter_robot_distance(robots[0], robots[1], start_time=start_time, end_time=end_time)
-            if save:
-                save_image(glob_fig, 'plot_metrics_and_trajectory.png', task_directory)
-                save_image(coll_fig, 'plot_inter_robot_distance.png', task_directory)
+    if global_plot and len(robots) > 1:
+        glob_fig = plot_all_metrics_combined(robots[0], robots[1], global_range, start_time=start_time, end_time=end_time)
+        coll_fig = plot_inter_robot_distance(robots[0], robots[1], start_time=start_time, end_time=end_time)
+        if save:
+            save_image(glob_fig, 'plot_metrics_and_trajectory.png', task_directory)
+            save_image(coll_fig, 'plot_inter_robot_distance.png', task_directory)
     
-    if all_plots:
+    if all_plots or (global_plot and len(robots)==1):
+        colors = ['blue', 'orange']
         for i in range(len(robots)):
             r = robots[i]
-
-            views_fig = r.plot_3d_trajectory_views(global_limits=global_range)
-            heigth_fig = r.plot_height_over_time(start_time=start_time, end_time=end_time, global_limits=global_range)
-            joint_fig = r.plot_performance_metrics(start_time=start_time, end_time=end_time)
+            views_fig = r.plot_3d_trajectory_views(global_limits=global_range, line_color=colors[i])
+            print(views_fig)
+            heigth_fig = r.plot_height_over_time(start_time=start_time, end_time=end_time, global_limits=global_range, line_color=colors[i])
+            print(heigth_fig)
+            joint_fig = r.plot_performance_metrics(start_time=start_time, end_time=end_time, qd_color='b', cond_color=colors[i])
 
             if save:
                 save_image(views_fig, f'3d_trajectory_views[{r.name}].png', task_directory)
@@ -567,7 +557,7 @@ def global_limits(robots, n_dims=3, marg=0.2):
             
     return global_limits
     
-def plot_all_metrics_combined(panda_agent_1, panda_agent_2, global_limits_3d=None, start_time=None, end_time=None, figsize=(15,10), show=True, f=8):
+def plot_all_metrics_combined(panda_agent_1, panda_agent_2, global_limits_3d=None, start_time=None, end_time=None, figsize=(15,30), show=True, f=8):
     """
     Create an unique figure with all metrics and trajectories
     """
@@ -736,4 +726,4 @@ if __name__ == "__main__":
                 "\n- task '4b': two panda robot that build a wall following a pattern" \
                 "\nSELECTION (e.g.: '1a', '1b', ...):" \
                 "\n\ttask: ")
-    task(name, global_plot=False, all_plots=True)
+    task(name, global_plot=True, all_plots=True, save=True)

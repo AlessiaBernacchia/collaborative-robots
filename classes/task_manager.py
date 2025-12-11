@@ -142,6 +142,7 @@ class TaskManager:
         """
 
         if self._sensor.check_collision():
+            print('!! collision detected !!')
             ROBOT_WITH_PRECEDENCE_NAME = self._robots[0].name
 
             robot_target_distances = list(self._sensor.get_current_robot_target_distances())
@@ -248,12 +249,12 @@ class TaskManager:
         target_tower = self.search_uncomplete_tower(brick_to_pick)
         while target_tower is None:
             target_tower = self.search_uncomplete_tower(brick_to_pick)
-            # print(f"{agent.name}: can't find available tower")
+            print(f"{agent.name}: can't find available tower, retry")
             sleep(dt*5)
 
             if not self.has_work_remaining(agent):
                 # get down the brick
-                print(f'{agent.name} : No work remaining, leave down the brick')
+                print(f'{agent.name} : No tower or free bricks, leave down the brick')
                 self._controller.move_to_pose(agent, way_points_brick[1], brick=brick_to_pick, task_manager=self, dt = dt)
                 # fake parallel placing of the brick
                 brick_to_pick.placing_orientation()
@@ -329,7 +330,7 @@ class TaskManager:
 
         # when it finish the tasks -> rest pose
         self._controller.rest(robot, self, dt=self.__dt)
-        print(f'{robot.name} : Goodbye!!')
+        print(f'{robot.name} : I have finished here. Goodbye!!')
     
     def start(self):        
         # Create two threads, one for each robot

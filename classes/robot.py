@@ -234,6 +234,9 @@ class Robot_arm:
         """
         if ax is None:
             fig, ax = plt.subplots(1,1,figsize=(6,5))
+            show_plot = True
+        else:
+            show_plot = False
         
         if ee is None:
             ee, _ = self.get_trajectory()
@@ -245,9 +248,11 @@ class Robot_arm:
         ax.set_ylabel("Z [m]")
         ax.grid(True, alpha=0.3)
 
-        if ax is None:
+        if show_plot:
             plt.tight_layout()
             plt.show()
+
+            return fig
 
     def plot_front_view(self, ee=None, ax=None, line_color="blue", f=14):
         """
@@ -255,6 +260,9 @@ class Robot_arm:
         """
         if ax is None:
             fig, ax = plt.subplots(1,1,figsize=(6,5))
+            show_plot = True
+        else:
+            show_plot = False
         
         if ee is None:
             ee, _ = self.get_trajectory()
@@ -266,9 +274,11 @@ class Robot_arm:
         ax.set_ylabel("Z [m]")
         ax.grid(True, alpha=0.3)
 
-        if ax is None:
+        if show_plot:
             plt.tight_layout()
             plt.show()
+
+            return fig
         
     def plot_top_view(self, ee=None, ax=None, line_color="blue", f=14):
         """
@@ -276,6 +286,9 @@ class Robot_arm:
         """
         if ax is None:
             fig, ax = plt.subplots(1,1,figsize=(6,5))
+            show_plot = True
+        else:
+            show_plot = False
         
         if ee is None:
             ee, _ = self.get_trajectory()
@@ -289,9 +302,11 @@ class Robot_arm:
         ax.set_ylabel("Y [m]")
         ax.grid(True, alpha=0.3)
 
-        if ax is None:
+        if show_plot:
             plt.tight_layout()
             plt.show()
+
+            return fig
 
     def plot_3d_trajectory_views(self, axes=None, line_color="blue", global_limits=None, f=14):
         """
@@ -305,6 +320,9 @@ class Robot_arm:
 
         if axes is None:
             fig, axes = plt.subplots(1, 3, figsize=(10, 4))
+            show_plot = True
+        else:
+            show_plot = False
 
         # Common settings
         start_pos = ee[0]
@@ -341,10 +359,12 @@ class Robot_arm:
         for ax in axes:
             ax.grid(True, alpha=0.3)
 
-        if axes is None:
+        if show_plot:
             fig.suptitle('End-Effector Trajectory in 3D Views', fontsize=12)
             plt.tight_layout(rect=[0, 0, 1, 0.95]) # Adjust layout to fit suptitle
             plt.show()
+
+            return fig
 
     def plot_performance_metrics(self, window_tasks=None, axes=None,
                                  qd_color='k', cond_color='b',
@@ -445,6 +465,8 @@ class Robot_arm:
             plt.tight_layout()
             plt.show()
 
+            return fig
+
     def plot_height_over_time(self, window_tasks=None, start_time=None, end_time=None,
                               ax=None, line_color='purple', global_limits=None, f=14):
         """
@@ -503,6 +525,9 @@ class Robot_arm:
         if ax is None:
             fig, ax = plt.subplots(1, 1, figsize=(10, 5))
             #plt.figure('Height Over Time', figsize=(10, 5))
+            show_plot = True
+        else:
+            show_plot = False
         
         # height wrt Z
         ax.plot(time_data_plot, ee_z_plot, linewidth=1.5, color=line_color, label=f'{self.name} Height')
@@ -530,9 +555,11 @@ class Robot_arm:
         ax.grid(True, alpha=0.3)
         ax.legend(loc='best')
 
-        if ax is None:
+        if show_plot:
             plt.tight_layout()
             plt.show()
+
+            return fig
 
     def plot_collision_markers_3d(self, axes, start_time=None, end_time=None, 
                                marker_color='red', marker_size=100, f=14):
