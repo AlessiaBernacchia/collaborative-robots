@@ -395,6 +395,7 @@ def initialize_task_4b() -> Tuple[List[Robot_arm], List[Brick], List[Tower]]:
 
     return robots, bricks, towers
 
+# define and run tasks
 def run_task(env: swift.Swift, robots: List[Robot_arm], bricks: List[Brick], towers: List[Tower]) -> Tuple[int]:
     """
     Run the general task given the resources
@@ -505,7 +506,7 @@ def task(name: str, all_plots: bool = False, global_plot: bool = True, save: boo
                 save_image(heigth_fig, f'plot_height_over_time[{r.name}].png', task_directory)
                 save_image(joint_fig, f'plot_joints_metrics[{r.name}].png', task_directory)
 
-
+# plots
 def save_image(fig, file_name, dir_path=PLOTS_DIR):
     """
     Save the image in the given path, with the given name
@@ -645,7 +646,7 @@ def plot_all_metrics_combined(panda_agent_1, panda_agent_2, global_limits_3d=Non
 
     return fig_1, fig_2, fig_3
 
-def plot_inter_robot_distance(robot1, robot2, ax=None, start_time=None, end_time=None):
+def plot_inter_robot_distance(robot1, robot2, ax=None, start_time=None, end_time=None, f=8):
     """
     Plot the distance between two robots' end-effectors over time.
     """
@@ -709,7 +710,7 @@ def plot_inter_robot_distance(robot1, robot2, ax=None, start_time=None, end_time
                         alpha=0.3, color='red', label='Collision Risk Zone')
     
     ax.set_ylabel('Distance [m]')
-    ax.set_title('Inter-Robot Distance Over Time', fontsize=12)
+    ax.set_title('Inter-Robot Distance Over Time', fontsize=f)
     ax.grid(True, alpha=0.3)
     ax.legend(loc='best')
     ax.set_xlim(0, t_common[-1])
@@ -720,6 +721,10 @@ def plot_inter_robot_distance(robot1, robot2, ax=None, start_time=None, end_time
     return fig
 
 if __name__ == "__main__":
+    print(f"==> IN THE FIRST LINES OF THE CODE; \n    THERE ARE TWO VARIABLES THAT CAN BE MODIFIED, here the defaults ones:" \
+          f"\n\t\t GAIN = {GAIN}\t\t bigger it is, faster the movements" \
+          f"\n\t\t DT = {DT}\t\t bigger it is, bigger are the movements" \
+          f"if no values are passed to the methods, they automatically set them to {GAIN} and {DT}\n\n")
     name = None
     name = input("Select one of the following task: ' \
                 '\n- task '1a': one panda robot that build one single tower " \

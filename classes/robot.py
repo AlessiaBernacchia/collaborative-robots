@@ -562,7 +562,7 @@ class Robot_arm:
             return fig
 
     def plot_collision_markers_3d(self, axes, start_time=None, end_time=None, 
-                               marker_color='red', marker_size=100, f=14):
+                               marker_color='red', marker_size=100):
         """
         Adds collision event markers to existing 3D trajectory views.
         
