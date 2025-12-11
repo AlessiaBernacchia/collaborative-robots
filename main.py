@@ -753,8 +753,8 @@ def main():
         main()
     elif task_name == 'exit':
         return 0
-    elif task(task_name, global_plot=True, all_plots=True, save=True):  # task ended successfully
-        main()
+    elif task(task_name, global_plot=False, all_plots=False, save=False):  # put True True to viz all plots
+        main()  # task ended successfully
     else: # task doesn't end successfully
         print("TASK NOT END AS EXPECTED")
         return
