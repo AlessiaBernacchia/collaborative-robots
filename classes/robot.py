@@ -8,13 +8,15 @@ import matplotlib.pyplot as plt
 from time import time 
 
 class Robot_arm:
-    def __init__(self, name:str, frame=sm.SE3.Rz(0), safe_transition=sm.SE3.Tx(0.3)):
+    def __init__(self, name:str, frame=sm.SE3.Rz(0), safe_transition=sm.SE3.Tx(0.3), max_reach_distance: float=0.90):
         self.name = name
         self._robot = rtb.models.Panda()
         self._robot.q = self._robot.qr
         
         self._safe_transition = safe_transition
         self._transform = frame
+
+        self._max_reach_distance = max_reach_distance
 
         self._distance = np.inf
         self._busy = False
@@ -49,6 +51,13 @@ class Robot_arm:
         """
         return self._robot.qr
     
+    @property
+    def max_reach_distance(self):
+        """
+        Maximum distance from the base the robot is capable to reach with its end effector
+        """
+        return self._max_reach_distance
+    
     @property 
     def distance(self):
         """
@@ -56,6 +65,15 @@ class Robot_arm:
         between the end-factor and the target
         """
         return self._distance
+    
+    @property
+    def base_position(self):
+        """
+        getter function that return the position of the base
+        """
+        if self._position is None:
+            return self._robot.base.t
+        return self._position.t
     
     def reset_distance(self):
         """

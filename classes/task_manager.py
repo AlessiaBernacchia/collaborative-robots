@@ -57,6 +57,15 @@ class TaskManager:
         """
         return self._sensor.get_towers()
 
+    def ask_uncomplete_towers(self) -> List[Tower] | None:
+        """
+        ask to the Sensor class the incomplete towers
+        """
+        uncomplete_towers = self._sensor.get_incomplete_towers()
+        if len(uncomplete_towers) == 0:
+            return None
+        return uncomplete_towers
+    
     def search_uncomplete_tower(self) -> List[Tower] | None:
         """
         search between the towers in the environment one that is incomplete and unlocked
@@ -66,21 +75,44 @@ class TaskManager:
             return None
         return available_towers[0]
     
-    def available_brick(self, robot_name) -> Brick | None:
+    def _calculate_base_to_brick_distance(self, agent: Robot_arm, brick: Brick) -> float:
         """
-        return a free and unlocked brick
+        distance btw robot's base and brick pose
         """
-        # TODO remove panda robot
-        free_bricks = self._sensor.get_available_bricks()
-        if len(free_bricks) == 0:
-            return None
-        if robot_name == "panda":
-            free_bricks = [b for b in free_bricks if b.pose()[0, 3] <= 0.05]
-        elif robot_name == "panda_2":
-            free_bricks = [b for b in free_bricks if b.pose()[0, 3] > 0.05]
-            
-        return free_bricks[0]
+        base_pos = agent.base_position
+        brick_pos = brick.pose()
+        brick_pos = brick_pos[:3, 3]       
         
+        return np.linalg.norm(base_pos - brick_pos)
+    
+    def available_brick(self, agent: Robot_arm) -> Brick | None:
+        """
+        Retrieve the brick highest and nearest to the base of the robot
+        the brick to pick and place
+        """
+        # retrieve free bricks 
+        free_bricks = self.ask_available_bricks()
+        if not free_bricks:
+            return None
+
+        # reachable ones
+        reachable_bricks = []
+        for brick in free_bricks:
+            # select z coordinate of the brick
+            brick_z_pos = brick.pose()[2, 3]
+            distance = self._calculate_base_to_brick_distance(agent, brick)
+            if distance <= agent.max_reach_distance:
+                reachable_bricks.append((distance, brick_z_pos, brick))
+        
+        if not reachable_bricks:
+            return None
+        
+        # sort bricks based on z and nearless
+        sorted_bricks = sorted(reachable_bricks, key=lambda x: (-x[1], x[0]))
+        # select the highest and nearest one
+        min_dist, max_z, nearest_highest_brick = sorted_bricks[0]
+        
+        return nearest_highest_brick
 
         
     # internal methods
@@ -124,19 +156,42 @@ class TaskManager:
 
     def place_one_brick(self, agent: Robot_arm, dt=0.01):
         """
-        given the agent:
-        1. select the robot, the resource to pick and the target
-        2. calculates the points to follow to complete the task
-        3. moves the arm to make the task
+        Executes the full pick-and-place cycle for a single brick by the given agent.
+
+        This function coordinates resource locking, path planning, low-level movement 
+        (via the Controller), and implements task-specific conflict resolution logic.
+
+        Steps:
+        1. Resource Acquisition (Brick & Locks):
+        - Selects the nearest and highest available brick via self.available_brick(agent).
+        - Attempts to lock the selected brick. Fails if lock is unavailable.
+        2. Brick Picking Sequence:
+        - Moves agent to Safe Pick Pose, then Pick Pose, and lifts the brick to Safe High.
+        - NOTE: Collision precedence is checked by the TaskManager at every move step.
+        3. Target Acquisition and Synchronization:
+        - Searches for an available, incomplete Tower.
+        - Enters a loop: If no tower is available, agent waits briefly.
+        - Fallback Logic: If no towers become available before the project completes, 
+            the agent executes a safe drop of the brick and enters the rest pose.
+        - Attempts to lock the target tower.
+        4. Placing Sequence:
+        - Moves the agent (with the brick) through the calculated path points to the target pose.
+        - Finalizes brick orientation and adds it to the Tower stack.
+        - Releases locks on the Brick and Tower resources.
+        5. Cleanup:
+        - Moves the agent to the final Safe Height position.
+        
+        Args:
+            agent (Robot_arm): The robot assigned to perform the task.
+            dt (float): Time step increment for the simulation environment.
+            
+        Returns:
+            None: If the task was completed successfully.
+            Any: If the task failed due to missing/unavailable resources.
         """
-        # 1. select robot, brick and tower
-        # select one free robot
-        # agent = self.select_free_agent()
-        # if agent is None:
-        #     return None
 
         #request a free and unlocked brick
-        brick_to_pick = self.available_brick(agent.name)
+        brick_to_pick = self.available_brick(agent)
 
         # if there is no brick, return nothing
         if brick_to_pick is None:
@@ -168,6 +223,18 @@ class TaskManager:
             target_tower = self.search_uncomplete_tower()
             print(f"{agent.name}: can't find available tower")
             sleep(dt*5)
+
+            if not self.has_work_remaining(agent):
+                # get down the brick
+                self._controller.move_to_pose(agent, way_points_brick[1], brick=brick_to_pick, task_manager=self, dt = dt)
+                # fake parallel placing of the brick
+                brick_to_pick.placing_orientation()
+                # release the locks
+                brick_to_pick.unlock(agent.name)
+
+                self._controller.rest(agent, self, dt=DT)
+                return None
+            
         # try to lock the tower
         if not target_tower.try_lock(agent.name):
             return None
@@ -190,33 +257,46 @@ class TaskManager:
         # 3. move to safe height
         self._controller.move_to_pose(agent, way_points[-1], task_manager=self, dt = dt)
         target_tower.unlock(agent.name)
-        
-        #if self.search_uncomplete_tower() is None or self.ask_free_bricks() is None:
-        #    self._controller.rest(agent, self, dt)
 
         
-    
-
     # parallel methods executions
-    def robot_worker(self, robot, max_tasks):
+    def has_work_remaining(self, agent: Robot_arm) -> bool:
+        """
+        verify whether the task is complete and there is work remaining or not
+        """
+        #has_bricks = self.ask_free_bricks() is not None
+        has_towers = self.ask_uncomplete_towers() is not None
+
+        #has_available_towers = self.search_uncomplete_tower() is not None
+        has_available_bricks = self.available_brick(agent) is not None
+
+        if has_available_bricks and not has_towers:
+            # there are bricks, but all towers are complete
+            return False
+        
+        if not has_available_bricks:
+            # there no bricks free
+            return False
+        return True
+    
+    def robot_worker(self, robot: Robot_arm):
         """
         Worker function that executes tasks for a single robot.
-        Each robot will try to complete max_tasks bricks.
+        Each robot will work until there are resources or targets.
         """
-        tasks_completed = 0
         
-        while tasks_completed < max_tasks:
+        while self.has_work_remaining(robot):
             robot.start_task()
             result = self.place_one_brick(robot, dt=DT)
             robot.task_completed()
             
-            if result is None:  # Task completed successfully
-                tasks_completed += 1
-            else:
+            if result is not None:  # Task not completed -> retry
+                # wait a moment before recheck the resources available
                 sleep(DT*30)
             # finish task
-            if tasks_completed == max_tasks:
-                self._controller.rest(robot, self, dt=DT)
+
+        # when it finish the tasks -> rest pose
+        self._controller.rest(robot, self, dt=DT)
     
     def start(self):        
         # Create two threads, one for each robot
@@ -224,7 +304,7 @@ class TaskManager:
         threads = [
             threading.Thread(
                 target=self.robot_worker,
-                args=(agent, 4)
+                args=(agent,)
             )
             for agent in self._robots]
         

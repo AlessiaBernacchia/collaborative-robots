@@ -266,7 +266,7 @@ if __name__ == "__main__":
     env.launch(realtime=True, comms="rtc", browser="browser")
     
     # initialize the task
-    robots, bricks, towers = initialize_task_3()
+    robots, bricks, towers = initialize_task_2()
 
     # add elements to the environment
     for r in robots:
