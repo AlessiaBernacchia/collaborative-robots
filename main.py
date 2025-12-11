@@ -484,10 +484,12 @@ def task(name: str, all_plots: bool = False, global_plot: bool = True, save: boo
 
     
     if global_plot and len(robots) > 1:
-        glob_fig = plot_all_metrics_combined(robots[0], robots[1], global_range, start_time=start_time, end_time=end_time)
+        glob_fig_1, glob_fig_2, glob_fig_3 = plot_all_metrics_combined(robots[0], robots[1], global_range, start_time=start_time, end_time=end_time)
         coll_fig = plot_inter_robot_distance(robots[0], robots[1], start_time=start_time, end_time=end_time)
         if save:
-            save_image(glob_fig, 'plot_metrics_and_trajectory.png', task_directory)
+            save_image(glob_fig_1, 'plot_performances.png', task_directory)
+            save_image(glob_fig_2, 'plot_collisions.png', task_directory)
+            save_image(glob_fig_3, 'plot_trajectories.png', task_directory)
             save_image(coll_fig, 'plot_inter_robot_distance.png', task_directory)
     
     if all_plots or (global_plot and len(robots)==1):
@@ -495,9 +497,7 @@ def task(name: str, all_plots: bool = False, global_plot: bool = True, save: boo
         for i in range(len(robots)):
             r = robots[i]
             views_fig = r.plot_3d_trajectory_views(global_limits=global_range, line_color=colors[i])
-            print(views_fig)
             heigth_fig = r.plot_height_over_time(start_time=start_time, end_time=end_time, global_limits=global_range, line_color=colors[i])
-            print(heigth_fig)
             joint_fig = r.plot_performance_metrics(start_time=start_time, end_time=end_time, qd_color='b', cond_color=colors[i])
 
             if save:
@@ -557,33 +557,37 @@ def global_limits(robots, n_dims=3, marg=0.2):
             
     return global_limits
     
-def plot_all_metrics_combined(panda_agent_1, panda_agent_2, global_limits_3d=None, start_time=None, end_time=None, figsize=(15,30), show=True, f=8):
+def plot_all_metrics_combined(panda_agent_1, panda_agent_2, global_limits_3d=None, start_time=None, end_time=None, figsize=((20,6), (15, 5), (15, 5)), show=True, f=8):
     """
     Create an unique figure with all metrics and trajectories
     """
-    fig = plt.figure(figsize=figsize) 
+    fig_1 = plt.figure(figsize=figsize[0])
+    fig_2 = plt.figure(figsize=figsize[1]) 
+    fig_3 = plt.figure(figsize=figsize[2]) 
     
     # Define the grid 
-    gs = GridSpec(7, 6, figure=fig, hspace=0.8, wspace=0.6)
+    gs_1 = GridSpec(2, 2, figure=fig_1, hspace=0.17, wspace=0.2)
+    gs_2 = GridSpec(2, 1, figure=fig_2, hspace=0.2, wspace=0.2)
+    gs_3 = GridSpec(1, 3, figure=fig_3, hspace=0.2, wspace=0.2)
 
     # Metrics (qd and cond) 
     # for robot 1
-    ax_qd_1   = fig.add_subplot(gs[0, 0:3])  # Robot 1: q_dot (su 2 colonne)
-    ax_cond_1 = fig.add_subplot(gs[1, 0:3], sharex=ax_qd_1) # Robot 1: kappa (sotto qd_1)
+    ax_qd_1   = fig_1.add_subplot(gs_1[0, 0])  # Robot 1: q_dot
+    ax_cond_1 = fig_1.add_subplot(gs_1[1, 0], sharex=ax_qd_1) # Robot 1: K
     
     # for robot 2
-    ax_qd_2   = fig.add_subplot(gs[0, 3:6], sharey=ax_qd_1)  # Robot 2: q_dot (sulla stessa scala Y di qd_1)
-    ax_cond_2 = fig.add_subplot(gs[1, 3:6], sharex=ax_qd_2) # Robot 2: kappa 
+    ax_qd_2   = fig_1.add_subplot(gs_1[0, 1], sharey=ax_qd_1)  # Robot 2: q_dot
+    ax_cond_2 = fig_1.add_subplot(gs_1[1, 1], sharex=ax_qd_2) # Robot 2: K
     
     # Height across time
-    ax_height = fig.add_subplot(gs[2, 0:6]) # Altezza vs Tempo (su 3 colonne)
+    ax_height = fig_2.add_subplot(gs_2[0, 0])
     # Inter-robot distance
-    ax_distance = fig.add_subplot(gs[3, 0:6], sharex=ax_height)
+    ax_distance = fig_2.add_subplot(gs_2[1, 0], sharex=ax_height)
 
     # 3d trajectory (Views XY, XZ, YZ) 
-    ax_xy_traj = fig.add_subplot(gs[4:7, 0:2])  # Righe 4-6
-    ax_xz_traj = fig.add_subplot(gs[4:7, 2:4])  # Righe 4-6
-    ax_yz_traj = fig.add_subplot(gs[4:7, 4:6])  # Righe 4-6
+    ax_xy_traj = fig_3.add_subplot(gs_3[0, 0])
+    ax_xz_traj = fig_3.add_subplot(gs_3[0, 1])
+    ax_yz_traj = fig_3.add_subplot(gs_3[0, 2])
     
     # Robot 1: Plot metrics on axes [ax_qd_1, ax_cond_1]
     panda_agent_1.plot_performance_metrics(axes=[ax_qd_1, ax_cond_1], qd_color='blue', cond_color='darkblue')
@@ -632,12 +636,14 @@ def plot_all_metrics_combined(panda_agent_1, panda_agent_2, global_limits_3d=Non
     ax_cond_1.legend([])
     ax_cond_2.legend([])
     
-    fig.suptitle('Collaborative Robotics: Performance and Trajectory Analysis', fontsize=18)
+    fig_1.suptitle('Collaborative Robotics: Performance Analysis', fontsize=18)
+    fig_2.suptitle('Collaborative Robotics: Collision Analysis', fontsize=18)
+    fig_3.suptitle('Collaborative Robotics: Trajectory Analysis', fontsize=18)
     
     if show:
         plt.show()
 
-    return fig
+    return fig_1, fig_2, fig_3
 
 def plot_inter_robot_distance(robot1, robot2, ax=None, start_time=None, end_time=None):
     """
@@ -726,4 +732,4 @@ if __name__ == "__main__":
                 "\n- task '4b': two panda robot that build a wall following a pattern" \
                 "\nSELECTION (e.g.: '1a', '1b', ...):" \
                 "\n\ttask: ")
-    task(name, global_plot=True, all_plots=True, save=True)
+    task(name, global_plot=True, all_plots=False, save=True)
