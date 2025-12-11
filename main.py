@@ -430,31 +430,48 @@ def task(name: str, all_plots: bool = False, global_plot: bool = True, save: boo
     - task '2b': two panda robot that build a wall
     - task '3b': two panda robot that build two towers following a pattern
     - task '4b': two panda robot that build a wall following a pattern
+
+    Args:
+        name (str): index of the task
+        all_plots (bool, optional): whether show all singular plots [qdot, condition number, height over time, views plots]. Defaults False.
+        global_plots (bool, optional): whether show complex and coupled plots [summary of the task, collision plot]. Defaults True.
+        save (bool, optional): whether to save in the correct directory the plots created. Deafults False.
+        dir_path (str, optional): where is the main directory in the Disk. Defaults to './plots'.
     """
     # create the swift enviroment
     env = swift.Swift()
     env.launch(realtime=True, comms="rtc", browser="browser")
     
+    print('===============================================================')
     if name == '1a':
+        print('ONE PANDA BUILD ONE TOWER')
         robots, bricks, towers = initialize_task_1a()
     elif name == '1b':
+        print('TWO PANDA BUILD ONE TOWER')
         robots, bricks, towers = initialize_task_1b()
     elif name == '2a':
+        print('ONE PANDA BUILD WALL')
         robots, bricks, towers = initialize_task_2a()
     elif name == '2b':
+        print('TWO PANDA BUILD WALL')
         robots, bricks, towers = initialize_task_2b()
     elif name == '3a':
+        print('ONE PANDA BUILD TWO TOWER WITH DEFINED COLORS')
         robots, bricks, towers = initialize_task_3a()
     elif name == '3b':
+        print('ONE PANDA BUILD TWO TOWER WITH DEFINED COLORS')
         robots, bricks, towers = initialize_task_3b()
     elif name == '4a':
+        print('ONE PANDA BUILD WALL WITH DEFINED COLORS')
         robots, bricks, towers = initialize_task_4a()
     elif name == '4b':
+        print('TWO PANDA BUILD WALL WITH DEFINED COLORS')
         robots, bricks, towers = initialize_task_4b()
     else:
         print('Invalid input ...')
-        task(name, all_plots, global_plot, save, dir_path)
+        # task(name, all_plots, global_plot, save, dir_path)
         return None
+    print('===============================================================')
 
     start_time, end_time = run_task(env, robots, bricks, towers)
 
@@ -707,6 +724,7 @@ def plot_inter_robot_distance(robot1, robot2, ax=None, start_time=None, end_time
     return fig
 
 if __name__ == "__main__":
+    name = None
     name = input("Select one of the following task: ' \
                 '\n- task '1a': one panda robot that build one single tower " \
                 "\n- task '2a': one panda robot that build a wall" \
@@ -718,4 +736,4 @@ if __name__ == "__main__":
                 "\n- task '4b': two panda robot that build a wall following a pattern" \
                 "\nSELECTION (e.g.: '1a', '1b', ...):" \
                 "\n\ttask: ")
-    task(name, all_plots=True, global_plot=True, save=True)
+    task(name, global_plot=False, all_plots=True)
