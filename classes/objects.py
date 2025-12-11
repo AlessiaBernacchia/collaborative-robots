@@ -63,7 +63,7 @@ class Brick:
         self.start_pose = start_pose 
         self.scale = scale
         self.color_name = color_name.lower()
-        colors_dict = {"red":[1.0, 0.0, 0.0, 0.1], "green":[0.0, 1.0, 0.0, Brick.alpha], "blue":[0.0, 0.0, 1.0, Brick.alpha], "yellow":[1.0, 1.0, 0.0, Brick.alpha]}
+        colors_dict = {"red":[1.0, 0.0, 0.0, Brick.alpha], "green":[0.0, 1.0, 0.0, Brick.alpha], "blue":[0.0, 0.0, 1.0, Brick.alpha], "yellow":[1.0, 1.0, 0.0, Brick.alpha]}
         self.color = colors_dict[self.color_name.lower()]
         self.obj = sg.Cuboid(scale=self.scale, pose=self.start_pose, color=self.color)
 
