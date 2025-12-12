@@ -139,7 +139,7 @@ class TaskManager:
         """
 
         if self._sensor.check_collision():
-            print('!! collision detected !!')
+            print('!! Risk of collision detected !!')
             ROBOT_WITH_PRECEDENCE_NAME = self._robots[0].name
 
             robot_target_distances = list(self._sensor.get_current_robot_target_distances())

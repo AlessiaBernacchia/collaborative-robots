@@ -78,28 +78,37 @@ class Controller:
         rest_q = robot.rest_qr()
         rest_pose = robot._robot.fkine(rest_q)
         self.move_to_pose(robot, rest_pose,task_manager, dt=dt)
-        
+    
+    
     def compute_qdot(self, robot: Robot_arm, target: sm.SE3):
         """
         compute the position of the joints
         """
         r_name = robot.name 
-        robot = robot._robot
-        T = robot.fkine(robot.q)
-        error = target.t - T.t
-        J = robot.jacob0(robot.q)[0:3,:]
+        robot_model = robot._robot
+
+        # pose wrt World frame
+        T_w = robot_model.fkine(robot_model.q)
+        # error in World frame
+        error_w = target.t - T_w.t
+
+        # transformations from World frame to Robot frame matrices
+        R_wb = robot._transform.R
+        R_bw = R_wb.T
+
+        # error in Robot frame
+        error_b = R_bw @ error_w
+
+        # jacobian
+        J = robot_model.jacob0(robot_model.q)[0:3,:]
         J_inv = damped_pseudoinverse(J)
+        
+        # conditional number
         cond_number = compute_cond_number(J_inv)
-        
-        if r_name == "panda_2":
-            error_bot = error.copy()
-            error_bot[0] = -error[0]
-            error_bot[1] = -error[1]
-            qdot = self.gain*J_inv@error_bot
-            return qdot, error_bot, cond_number
-        
-        qdot = self.gain*J_inv@error
-        return qdot, error, cond_number
+        # qdot = K * J_inv * error_b
+        qdot = self.gain*J_inv@error_b
+
+        return qdot, error_b, cond_number
         
     def drag_brick(self, brick, robot:rtb.ERobot):
         """
