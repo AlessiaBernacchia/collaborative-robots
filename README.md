@@ -17,8 +17,8 @@ The core focus of this implementation is establishing a robust **cooperation pro
 
 ### 🎯 Key Features Implemented
 
-  * **Dual Panda Arm Simulation:** Control and simulation of two independent Panda robotic manipulators.
   * **Safe Waypoint Trajectory Generation:** Robots utilize custom waypoint planning that ensures movements are executed at a pre-defined **"safe height"** when moving horizontally to prevent collision with or destruction of existing tower structures.
+  * **Dual Panda Arm Simulation:** Control and simulation of two independent Panda robotic manipulators.
   * **Autonomous Tower Construction:** Each robot can independently construct parts of the final target tower, dynamically selecting the most accessible and highest-placed bricks from their resource pool.
   * **Synchronized Cooperation:** Implementation of a **lock mechanism** to manage common resources (bricks) and the shared target structure, preventing race conditions and ensuring successful collaboration.
   * **Robust Collision Avoidance:** A mechanism that actively prevents collision between the two robot arms, proven to function reliably even when the robots operate at different simulated speeds.
@@ -27,7 +27,7 @@ The core focus of this implementation is establishing a robust **cooperation pro
 
   * **Python:** Primary programming language.
   * **Swift (Python Robotics):** Used for the simulation and control of the Panda robotic manipulators.
-  * **Standard Python Libraries:** (You can add specific ones here if necessary, e.g., NumPy, Matplotlib, if you used them for plotting/calculations.)
+  * **Standard Python Libraries:** used for plotting and calculations.
 
 -----
 
@@ -85,8 +85,12 @@ Ensure you have the following installed on your system:
     ```bash
     pipenv install -r requirements.txt
     ```
+   or you can simply install dependencies from the PipFile
+    ```bash
+    pipenv install
+    ```
 
-3.  **Activate the Virtual Environment:**
+4.  **Activate the Virtual Environment:**
 
     ```bash
     pipenv shell
