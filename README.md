@@ -13,6 +13,8 @@ This repository contains a **collaborative simulation system** where two robotic
 
 The core focus of this implementation is establishing a robust **cooperation protocol** that manages shared resources and successfully handles **collision avoidance** between the two robotic agents, even when operating at variable speeds.
 
+> Here the original link to the project description made for the course: [original description of the project](./ProjectDescription.md).
+
 ### 🎯 Key Features Implemented
 
   * **Dual Panda Arm Simulation:** Control and simulation of two independent Panda robotic manipulators.
