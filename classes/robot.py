@@ -1,9 +1,7 @@
 import numpy as np
 import roboticstoolbox as rtb
-import spatialgeometry as sg
 import spatialmath as sm
 import swift
-import matplotlib as mtb
 import matplotlib.pyplot as plt
 from time import time 
 
@@ -95,7 +93,6 @@ class Robot_arm:
         self._qd_hist.append(self._robot.qd)
         self._cond_hist.append(cond_number)
 
-        # ee_pos = self._robot.fkine(self._robot.q).t
         self._ee_pos_hist.append(self.end_factor_position())
 
     
@@ -121,7 +118,6 @@ class Robot_arm:
         """
         give back the end-factor position
         """
-        # return np.asarray(self._robot.q, dtype=float)
         return self._robot.fkine(self._robot.q).t
         
     def apply_velocity_cmd(self, qdot: np.ndarray, cond_number: float, error):
@@ -149,7 +145,6 @@ class Robot_arm:
         """
         Records the absolute end time of the task.
         """
-        #self._tasks_t.append(t)
         self._end_time_tasks.append(time())
         self._busy = False
 
@@ -294,8 +289,6 @@ class Robot_arm:
             ee, _ = self.get_trajectory()
 
         ax.plot(ee[:,0], ee[:,1], linewidth=1.5, color=line_color, label=self.name, alpha=0.8)
-        # ax.scatter(ee[0,0], ee[0,1], c='green', s=120, edgecolor='black', label='Pick')
-        # ax.scatter(ee[-1,0], ee[-1,1], c='red', s=120, edgecolor='black', label='Place')
         ax.axhline(0, linestyle='--', color='darkred', alpha=0.6)
         ax.set_title("Top View (XY Plane)", fontsize=f)
         ax.set_xlabel("X [m]")
@@ -330,8 +323,6 @@ class Robot_arm:
         
         # 1. Top View (XY)
         self.plot_top_view(ee, axes[0], line_color, f=f)
-        # axes[0].scatter(start_pos[0], start_pos[1], c='green', s=120, edgecolor='black', label='Start/Pick')
-        # axes[0].scatter(end_pos[0], end_pos[1], c='red', s=120, edgecolor='black', label='End/Place')
         
         # 2. Side View (XZ Plane)
         self.plot_side_view(ee, axes[1], line_color, f=f)
@@ -414,9 +405,6 @@ class Robot_arm:
         
         # prepare task vertical lines, scaled to the plot window
         task_markers = [t - start_time_abs for t in self._end_time_tasks if start_time_abs <= t <= end_time_abs]
-
-        # start_time = self._start_time_tasks[idx_first_task]
-        # time_data = map(lambda t: t-start_time, np.array(self._time_data))
         
         # plotting
         if axes is None:
@@ -449,11 +437,9 @@ class Robot_arm:
             has_label = True
 
         ax_qd.set_title(f'{self.name} Control Performance Metrics')
-        #.title('Robot Control Performance Metrics - joint positions')
         ax_qd.set_ylabel(r'$q_i [rad]$')
         ax_qd.set_xlim(0, time_data_plot[-1]) 
         ax_qd.grid(True, alpha=0.5, color='0.95')
-        # ax_qd.legend(loc='best')
         
         ax_cond.set_xlabel('Time [s]')
         ax_cond.set_ylabel(r'Condition number ($\kappa$)')
@@ -524,7 +510,6 @@ class Robot_arm:
         # plotting
         if ax is None:
             fig, ax = plt.subplots(1, 1, figsize=(10, 5))
-            #plt.figure('Height Over Time', figsize=(10, 5))
             show_plot = True
         else:
             show_plot = False

@@ -38,13 +38,11 @@ class Tower:
         self.bricks.append(brick_placed)
         self._current_logical_height += brick_placed.height
 
-    def get_next_pose(self) -> sm.SE3: #, brick_to_add: 'Brick') -> sm.SE3:
+    def get_next_pose(self) -> sm.SE3:
         """
         Next pose (end-effector) for next brick 
         actual_pose + next_brick_neight
         """
-        #height = self._current_logical_height + brick_to_add.height
-        #return self.base_pose @ sm.SE3([0, 0, height])
         return self.base_pose @ sm.SE3([0, 0, self._current_logical_height])
 
         

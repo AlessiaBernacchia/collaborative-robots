@@ -1,12 +1,9 @@
-from typing import List, Tuple
+from typing import List
 
 from time import sleep, time
 import swift
-import spatialmath as sm
-import spatialgeometry as sg
 
 import numpy as np
-import roboticstoolbox as rtb
 import threading
 
 from classes.robot import Robot_arm

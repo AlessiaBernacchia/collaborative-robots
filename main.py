@@ -2,11 +2,9 @@ from classes.robot import *
 from classes.controller import *
 from classes.objects import *
 from classes.task_manager import *
-
+from typing import Tuple
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
-# from classes.sensor import *
-# from classes import *
 
 import time
 import os
