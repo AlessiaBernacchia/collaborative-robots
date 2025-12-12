@@ -109,8 +109,8 @@ def plot_all_metrics_combined(panda_agent_1, panda_agent_2, global_limits_3d=Non
 
     # 3D Trajectory
     axes_traj_3d = [ax_xy_traj, ax_xz_traj, ax_yz_traj]
-    panda_agent_1.plot_3d_trajectory_views(axes=axes_traj_3d, line_color='blue', global_limits=global_limits_3d, f=f)
-    panda_agent_2.plot_3d_trajectory_views(axes=axes_traj_3d, line_color='orange', global_limits=global_limits_3d, f=f)
+    panda_agent_1.plot_3d_trajectory_views(axes=axes_traj_3d, line_color='blue', f=f)# , global_limits=global_limits_3d
+    panda_agent_2.plot_3d_trajectory_views(axes=axes_traj_3d, line_color='orange', f=f) # , global_limits=global_limits_3d
 
     # Height across time
     panda_agent_1.plot_height_over_time(ax=ax_height, line_color='blue', 
@@ -139,7 +139,8 @@ def plot_all_metrics_combined(panda_agent_1, panda_agent_2, global_limits_3d=Non
     ax_distance.set_xlabel('Time [s]')
     
     for ax in axes_traj_3d:
-        ax.set_aspect('equal', adjustable='box')
+        ax.axis("equal")
+        #ax.set_aspect('equal', adjustable='box')
         ax.legend(loc='lower right', fontsize=8)
     
     axes = [ax_cond_1, ax_cond_2, ax_height, ax_distance]
@@ -715,7 +716,7 @@ def task(name: str, all_plots: bool = False, global_plot: bool = True, save: boo
         colors = ['blue', 'orange']
         for i in range(len(robots)):
             r = robots[i]
-            views_fig = r.plot_3d_trajectory_views(global_limits=global_range, line_color=colors[i])
+            views_fig = r.plot_3d_trajectory_views(line_color=colors[i])# global_limits=global_range,
             heigth_fig = r.plot_height_over_time(start_time=start_time, end_time=end_time, global_limits=global_range, line_color=colors[i])
             joint_fig = r.plot_performance_metrics(start_time=start_time, end_time=end_time, qd_color='b', cond_color=colors[i])
 
@@ -753,7 +754,7 @@ def main():
         main()
     elif task_name == 'exit':
         return 0
-    elif task(task_name, global_plot=False, all_plots=False, save=False):  # put True True to viz all plots
+    elif task(task_name, global_plot=True, all_plots=False, save=True):  # put True True to viz all plots
         main()  # task ended successfully
     else: # task doesn't end successfully
         print("TASK NOT END AS EXPECTED")
