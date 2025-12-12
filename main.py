@@ -747,7 +747,7 @@ def main():
     print(f"\n\n==> IN THE FIRST LINES OF THE CODE; \n    THERE ARE TWO VARIABLES THAT CAN BE MODIFIED, here the defaults ones:" \
           f"\n\t\t GAIN = {GAIN}\t\t bigger it is, faster the movements" \
           f"\n\t\t DT = {DT}\t\t bigger it is, bigger are the movements" \
-          f"if no values are passed to the methods, they automatically set them to {GAIN} and {DT}\n\n")
+         )
     
     task_name = retrieve_task_name()
     if task_name is None:
