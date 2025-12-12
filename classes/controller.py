@@ -1,10 +1,8 @@
 import swift
 import spatialmath as sm
-import spatialgeometry as sg
 
 import numpy as np
 import roboticstoolbox as rtb
-# from classes import *
 from classes.robot import Robot_arm
 from classes.objects import Tower, Brick
 
@@ -44,8 +42,7 @@ class Controller:
         returns a list of points that define the safe path to do
         """
         def set_global_height(T: sm.SE3, height: float) -> sm.SE3:
-            # since .copy() doesn't work
-            new_T = sm.SE3(T.A.copy())     # COPIA VERA
+            new_T = sm.SE3(T.A.copy())
             new_T.t[2] = height
             return new_T
 
@@ -128,11 +125,6 @@ class Controller:
             can_move = task_manager.resolve_collision_precedence(agent, error_norm)
             # select the q for the movement
             qdot_final = qdot_initial
-
-            # if not can_move:
-            #     qdot_avoidance, error, _ = self.compute_qdot(agent, target_pose@agent._safe_transition)
-            #     qdot_final = qdot_avoidance
-            # # move
             
             # if it cannot move, the robot will stay away from the danger area.
             waiting_counter = 0
